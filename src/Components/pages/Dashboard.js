@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import { FaSearch, FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Nav from "../Nav/Nav";
 
   
 const Dashboard = () => {
@@ -24,6 +25,7 @@ const Dashboard = () => {
       setProjects(savedProjects);
     }
   }, [user]);
+
 
   const handleAddProject = () => {
     setIsModalOpen(true);
@@ -79,29 +81,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <nav className="sidebar">
-        <h1>Simple</h1>
-        <ul>
-          <li>
-            <FaUser /> Profile: {user?.name}
-          </li>
-          <li>
-            <FaFileAlt /> History
-          </li>
-          <li>
-            <FaClipboardCheck /> Projects
-          </li>
-          <li>
-            <FaPlus /> Users
-          </li>
-          <li>
-            <FaBell /> Notification
-          </li>
-          <li className='logout' onClick={handleLogout}>
-            <FaSignOutAlt/> Logout
-          </li>
-        </ul>
-      </nav>
+    <Nav name={user?.name} handleLogout={handleLogout} />
 
       {/* Main Content */}
       <main className="main-content">
@@ -145,7 +125,7 @@ const Dashboard = () => {
                 onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
               />
               <input
-              className="date_in"
+                className="date_in"
                 type="date"
                 placeholder="Date of Start"
                 value={newProject.startDate}

@@ -1,0 +1,227 @@
+.searchUser{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 7%;
+    position: absolute;
+    margin-left: 22%;
+    border-radius: 20px;
+}
+
+.searchUser input{
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    width: 200px;
+    padding: 0.5rem 1rem;
+    outline: none;
+}
+
+.searchUser button{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal {
+    background-color: white;
+    width: 50%;
+    height: 80%;	
+    padding: 2rem;
+    border-radius: 0.5rem;
+    z-index: 1001;
+    margin-left: 10%;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+    margin-top: 1rem;
+  }
+  
+  .user-card {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+    height: 38%;
+  }
+
+  .nameUserS{
+    display: flex;
+    justify-content: flex-start;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Arial, 'sans-serif';
+    margin-top: 0;
+  }
+  .roleUser{
+    display: flex;
+    justify-content: flex-start;
+    font-size: 18px;
+    font-family: Arial, 'sans-serif';
+  }
+
+  .photo-upload {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  
+  .photo-placeholder,
+  .photo-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+  }
+  
+  .photo-preview {
+    object-fit: cover;
+  }
+
+  .photo-upload input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.UserInfo{
+    border-radius: 20px;
+    padding: 0.5rem;
+    margin-left: -1%;
+    background-color: rgb(255, 255, 255);
+    width: 80%; /* Ajuste a largura conforme necessário */
+    height: 2rem; /* Ajuste a altura conforme necessário */
+}
+.saveButton{
+    background-color: #78D650;
+    border: none;
+    border-radius: 10px;
+    width: 14%;
+    height: 51.92px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-left: 70%;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.mt-2{
+    background-color: #E43C3C;
+    border: none;
+    border-radius: 10px;
+    width: 14%;
+    height: 51.92px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-left: 2%;
+    cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+  margin-left: 80%;
+  top: -64px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 6px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+.viewButton {
+  display: inline-block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 26px;
+  color: #2196F3;
+  position: absolute;
+  margin-top: -4.4%;
+  margin-left: 1%;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination button {
+  background-color: #CCC;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color: #5c5c5c;
+}
+
+.pagination i {
+  margin-right: 0.5rem;
+}

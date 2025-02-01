@@ -3,13 +3,6 @@ import logo from '../../img/WhatsApp Image 2025-01-24 at 00.39.45.jpeg';  // Imp
 import {useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const mockUser = {
-    email: "flavio1508@gmail.com",
-    password: "1234",
-    name: "Flávio Augusto",
-  };
-
-
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -17,13 +10,34 @@ function Login() {
     const navigate = useNavigate();
   
     const handleLogin = () => {
-      if (email === mockUser.email && password === mockUser.password) {
-        localStorage.setItem("user", JSON.stringify(mockUser));
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find((u) => u.email === email && u.password === password);
+  
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
         navigate("/dashboard");
       } else {
-        setError("Email ou senha incorretos!");
+        setError("Invalid email or password");
       }
     };
+
+    // Add default users if they don't exist
+    useEffect(() => {
+      const defaultUsers = [
+        { email: "flavio1508@gmail.com", password: "1234", name: "Flávio Augusto" },
+        { email: "daniel.6583@gmail.com", password: "daniel@6583", name: "Daniel" }
+      ];
+
+      const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
+      defaultUsers.forEach((defaultUser) => {
+        const userExists = savedUsers.some((u) => u.email === defaultUser.email);
+        if (!userExists) {
+          savedUsers.push(defaultUser);
+        }
+      });
+
+      localStorage.setItem("users", JSON.stringify(savedUsers));
+    }, []);
   
     return (
       <div className="login-container">
@@ -41,7 +55,7 @@ function Login() {
           />
           <input
             type="password"
-            placeholder="Senha"
+            placeholder="Password"
             className="login-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
