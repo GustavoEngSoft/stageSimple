@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import './NewUser.css';
 import { FaSearch, FaEye, FaAngleLeft, FaAngleRight } from "react-icons/fa";
@@ -19,12 +20,13 @@ const NewUser = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
     setUsers(savedUsers);
   }, []);
+
 
   const handleAddUser = () => {
     const newUser = { email, password, name, photo,  dateOfBirth, numberSsn, role};
@@ -91,14 +93,16 @@ const NewUser = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   }; 
-  const handleRemoveUser = (index) => {
-    const updatedUsers = users.filter((_, i) => i !== index);
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
   };
+
   return (
     <div>
-      <Nav />
+      <Nav handleLogout={handleLogout} />
       {/* Main Content */}
       <main className="main-content">
         {/* Header */}
@@ -114,12 +118,12 @@ const NewUser = () => {
                 <FaSearch />
               </button>
             </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="new-project-btn"
-            >
-            <span className="text-lg mr-2">+</span> New User
-            </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="new-project-btn"
+              >
+              <span className="text-lg mr-2">+</span> New User
+              </button>
         </div>
 
          {/* Modal */}
@@ -159,11 +163,11 @@ const NewUser = () => {
                 style={{ width: "24%" }}
                 className="UserInfo"
                 type="date"
-                placeholder="Date of Born"
+                placeholder="Date of birth"
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 onFocus={(e) => e.target.placeholder = ""}
-                onBlur={(e) => e.target.placeholder = "Date of Born"}
+                onBlur={(e) => e.target.placeholder = "Date of birth"}
               />
               <input
                 style={{ width: "24%" , marginLeft: "5rem" }}

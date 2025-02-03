@@ -4,12 +4,22 @@ import { useNavigate } from "react-router-dom";
 
 const Nav =(props) => {
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const handleAddUser = () => {
-      navigate("/newUser");
+      if (user.role === "Product Manager") {
+        navigate("/newuser");
+      } else {
+        alert("Access denied. Only Product Managers can add new users.");
+      }
     };
+
     const projects = () => {
       navigate("/dashboard");
+    };
+    
+    const handleprofile = () => {
+      navigate("/profile");
     };
     return(
         <div className="flex h-screen bg-gray-100">
@@ -17,7 +27,7 @@ const Nav =(props) => {
               <nav className="sidebar">
                 <h1>Simple</h1>
                 <ul>
-                  <li>
+                  <li onClick={handleprofile}>
                     <FaUser /> Profile
                   </li>
                   <li>
