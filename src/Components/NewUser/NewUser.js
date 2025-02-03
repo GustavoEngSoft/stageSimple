@@ -14,7 +14,6 @@ const NewUser = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [numberSsn, setNumberSsn] = useState("");
   const [users, setUsers] = useState([]);
-  const [ssnError, setSsnError] = useState("");
   const [role, setRole] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
