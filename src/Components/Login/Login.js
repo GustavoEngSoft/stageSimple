@@ -11,6 +11,7 @@ function Login() {
   
     const handleLogin = () => {
       const users = JSON.parse(localStorage.getItem("users")) || [];
+      console.log("Registered users:", users); // Log para verificar os usuários cadastrados
       const user = users.find((u) => u.email === email && u.password === password);
       console.log(user);
       if (user) {
