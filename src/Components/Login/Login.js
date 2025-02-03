@@ -12,7 +12,7 @@ function Login() {
     const handleLogin = () => {
       const users = JSON.parse(localStorage.getItem("users")) || [];
       const user = users.find((u) => u.email === email && u.password === password);
-  
+      console.log(user);
       if (user) {
         if (user.isActive) {
           localStorage.setItem("user", JSON.stringify(user));
