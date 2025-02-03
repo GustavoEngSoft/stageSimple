@@ -15,7 +15,7 @@ function Login() {
       const user = users.find((u) => u.email === email && u.password === password);
       console.log(user);
       if (user) {
-        if (user) {
+        if (user.isActive) {
           localStorage.setItem("user", JSON.stringify(user));
           navigate("/dashboard");
         } else {
