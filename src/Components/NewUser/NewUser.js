@@ -40,7 +40,7 @@ const NewUser = () => {
     setDateOfBirth("");
     setNumberSsn("");
     setRole("");
-    setSsnError("");
+
   };
 
   const handlePhotoChange = (e) => {
@@ -180,9 +180,9 @@ const NewUser = () => {
                 onChange={(e) => setNumberSsn(e.target.value)}
                 onBlur={() => {
                   if (!validateSsn(numberSsn)) {
-                    setSsnError("SSN must be in the format 123-45-6789");
+                    alert("SSN must be in the format 123-45-6789");
                   } else {
-                    setSsnError("");
+                    return;
                   }
                 }}
               />
