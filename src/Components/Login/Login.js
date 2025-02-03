@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import logo from '../../img/WhatsApp Image 2025-01-24 at 00.39.45.jpeg';  // Importando a imagem
 import {useNavigate } from "react-router-dom";
 import "./Login.css";
@@ -25,23 +25,6 @@ function Login() {
       }
     };
 
-    // Add default users if they don't exist
-    useEffect(() => {
-      const defaultUsers = [
-        { email: "flavio1508@gmail.com", password: "1234", name: "Flávio Augusto" },
-        { email: "daniel.6583@gmail.com", password: "daniel@6583", name: "Daniel" }
-      ];
-
-      const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
-      defaultUsers.forEach((defaultUser) => {
-        const userExists = savedUsers.some((u) => u.email === defaultUser.email);
-        if (!userExists) {
-          savedUsers.push(defaultUser);
-        }
-      });
-
-      localStorage.setItem("users", JSON.stringify(savedUsers));
-    }, []);
   
     return (
       <div className="login-container">
