@@ -1,5 +1,5 @@
 import React from "react";
-import { FaSearch, FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaMoneyCheckAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const Nav =(props) => {
@@ -21,6 +21,15 @@ const Nav =(props) => {
     const handleprofile = () => {
       navigate("/profile");
     };
+
+    const handlePayroll = () => {
+      if (user.role === "Product Manager") {
+        navigate("/payroll");
+      } else {
+        alert("Access denied. Only Product Managers can access the payroll.");
+      }
+    };
+
     return(
         <div className="flex h-screen bg-gray-100">
               {/* Sidebar */}
@@ -41,6 +50,9 @@ const Nav =(props) => {
                   </li>
                   <li>
                     <FaBell /> Notification
+                  </li>
+                  <li  onClick={handlePayroll}>
+                     <FaMoneyCheckAlt/>Payroll
                   </li>
                   <li className='logout' onClick={props.handleLogout}>
                     <FaSignOutAlt/> Logout

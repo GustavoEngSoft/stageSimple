@@ -1,0 +1,90 @@
+.payroll-container {
+    flex: 1;
+    padding: 2rem;
+    margin-left: 16rem; /* Adjust for the sidebar */
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .payroll-container{
+    font-family: Arial, 'sans-serif';
+  }
+
+  .add-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+  
+  .add-button:hover {
+    background-color: #45a049;
+  }
+  
+  .payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .payroll-table th, .payroll-table td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .payroll-table th {
+    background-color: #ccc;
+  }
+  
+  .modalP {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalPayroll {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 5px;
+    width: 30%;
+  }
+  
+  .modalPayroll input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: -0.5rem;
+  }
+  
+  .bottonSave {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }
+  
+
+  .bottonCancel{
+    background-color: #E43C3C;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }

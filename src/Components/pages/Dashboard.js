@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
-import { FaSearch, FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaSearch, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 
@@ -108,8 +108,8 @@ const Dashboard = () => {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
+          <div className="modalOverlay">
+            <div className="modalProject">
               <h2 className="text-xl font-bold mb-4">New Project</h2>
               <input
                 className="nameProejct"
@@ -139,14 +139,14 @@ const Dashboard = () => {
         )}
 
         {/* Project Cards */}
-        <div className="grid-container">
+        <div className="gridContainer">
           {paginatedProjects.map((project) => (
-            <div key={project.id} className="project-card">
-              <div className="project-card-header"></div>
+            <div key={project.id} className="projectCard">
+              <div className="projectCardHeader"></div>
               <h3>{project.name}</h3>
               <p>{project.description}</p>
               <p>Date of Start: {project.startDate}</p>
-              <div className="card-options">
+              <div className="cardOptions">
                 <span onClick={() => handleEditProject(project.id)}>Edit</span>
                 <span onClick={() => handleDeleteProject(project.id)}>Delete</span>
               </div>

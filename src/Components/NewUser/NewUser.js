@@ -139,6 +139,7 @@ const NewUser = () => {
                 <input type="file" onChange={handlePhotoChange} />
               </div>
               <input
+                style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
                 type="text"
                 placeholder="Name"
@@ -146,6 +147,7 @@ const NewUser = () => {
                 onChange={(e) => setName(e.target.value)}
               />
               <input
+               style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
                 type="email"
                 placeholder="Email"
@@ -153,6 +155,7 @@ const NewUser = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
+                style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
                 type="password"
                 placeholder="Password"
@@ -160,7 +163,7 @@ const NewUser = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <input
-                style={{ width: "24%" }}
+                style={{ width: "24%", height: "7%", borderRadius: "10px", border: "1px solid #ccc" }}
                 className="UserInfo"
                 type="date"
                 placeholder="Date of birth"
@@ -170,7 +173,7 @@ const NewUser = () => {
                 onBlur={(e) => e.target.placeholder = "Date of birth"}
               />
               <input
-                style={{ width: "24%" , marginLeft: "5rem" }}
+                style={{ width: "24%" , marginLeft: "6rem", height: "7%", borderRadius: "10px", border: "1px solid #ccc" }}
                 className="UserInfo"
                 type="text"
                 placeholder="SSN"
@@ -185,7 +188,7 @@ const NewUser = () => {
                 }}
               />
               <select
-                style={{ width: "24%", marginLeft: "5rem", height: "10%", borderRadius: "10px", border: "1px solid #ccc" }}
+                style={{ width: "24%", marginLeft: "5.4rem", height: "10%", borderRadius: "10px", border: "1px solid #ccc" }}
                 className="UserInfo"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -223,6 +226,7 @@ const NewUser = () => {
                 }} />
               </div>
               <input
+               style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
                 type="text"
                 placeholder="Name"
@@ -230,6 +234,7 @@ const NewUser = () => {
                 onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })}
               />
               <input
+               style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
                 type="email"
                 placeholder="Email"
@@ -237,7 +242,7 @@ const NewUser = () => {
                 onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
               />
               <input
-                style={{ width: "24%" }}
+                style={{ width: "24%", height: "7%", borderRadius: "10px", border: "1px solid #ccc" }}
                 className="UserInfo"
                 type="date"
                 placeholder="Date of Born"

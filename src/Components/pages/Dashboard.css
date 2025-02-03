@@ -1,13 +1,14 @@
 /* Estilo da barra lateral */
 .sidebar {
-  width: 14rem;
+  width: 100%;
+  max-width: 14rem;
   background-color: rgba(206, 206, 206, 1); /* Cinza*/
   color: white;
   padding: 1rem;
   height: 100vh;
   position: fixed;
-  margin-top: -10px;
-  margin-left: -8px;
+  top:0;
+  left: 0;
 }
 
 .sidebar h1 {
@@ -100,7 +101,7 @@
 
 
 /* Modal de novo projeto */
-.modal-overlay {
+.modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -116,7 +117,7 @@ body, html {
   overflow: hidden;
 }
 
-.modal {
+.modalProject {
   background-color: white;
   padding: 2rem;
   border-radius: 0.5rem;
@@ -124,8 +125,8 @@ body, html {
   z-index: 1001;
 }
 
-.modal input,
-.modal textarea {
+.modalProject input,
+.modalProject textarea {
   width: 100%;
   margin-bottom: 1rem;
   padding: 0.75rem;
@@ -174,7 +175,7 @@ body, html {
 }
 
 /* Estilo do card */
-.project-card {
+.projectCard {
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
@@ -183,13 +184,13 @@ body, html {
   position: relative;
 }
 
-.project-card-header {
+.projectCardHeader {
   background-color: #999898; /* Cor da barra lateral */
   height: 4px;
   margin-bottom: 1rem;
 }
 
-.card-options {
+.cardOptions {
   margin-top: 90px;
   position: absolute;
   top: 0.5rem;
@@ -197,24 +198,24 @@ body, html {
   cursor: pointer;
 }
 
-.project-card:hover .card-options {
+.projectCard:hover .card-options {
   display: block;
 }
 
-.card-options span {
+.cardOptions span {
   margin-left: 0.5rem;
 }
 
-.project-card h3 {
+.projectCard h3 {
   font-size: 1.25rem;
   font-weight: bold;
 }
 
-.project-card p {
+.projectCard p {
   color: #4b5563;
 }
 
-.grid-container {
+.gridContainer {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
@@ -246,11 +247,28 @@ body, html {
 }
 .logout{
   position: absolute;
-  margin-top: 120%;
+  margin-top: 100%;
 }
 
 .text-xl{
   color: #000;
   font-size: Arial, sans-serif;
   margin-top: -12px; 
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
 }

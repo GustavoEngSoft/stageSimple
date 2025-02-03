@@ -14,8 +14,12 @@ function Login() {
       const user = users.find((u) => u.email === email && u.password === password);
   
       if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
-        navigate("/dashboard");
+        if (user.isActive) {
+          localStorage.setItem("user", JSON.stringify(user));
+          navigate("/dashboard");
+        } else {
+          setError("This account is inactive. Please contact the administrator.");
+        }
       } else {
         setError("Invalid email or password");
       }
