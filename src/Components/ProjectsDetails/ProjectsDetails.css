@@ -1,0 +1,49 @@
+.project-details {
+    padding: 2rem;
+  }
+  
+  .project-details h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .project-details h3 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .project-details input,
+  .project-details textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+  }
+  
+  .project-details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  .project-details table,
+  .project-details th,
+  .project-details td {
+    border: 1px solid #ccc;
+  }
+  
+  .project-details th,
+  .project-details td {
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+.mainContent{
+  flex: 1;
+  padding: 5.5rem;
+  margin-left: 16rem; /* Barra lateral fixa */
+  height: 100vh; /* Garante que o conteúdo ocupe toda a altura da tela */
+  overflow-y: auto;
+  margin-top: -5%;
+}

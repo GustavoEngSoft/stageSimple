@@ -93,6 +93,7 @@ const NewUser = () => {
     setCurrentPage(pageNumber);
   }; 
   
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -293,7 +294,7 @@ const NewUser = () => {
           <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             <FaAngleLeft style={{fontSize:'16px'}}/>
           </button>
-          <span style={{fontSize:'26px', border:'1px solid #ccc'}}>{currentPage}</span>
+          <span style={{fontSize:'22px', fontWeight: 'Arial, sans-serif'}}>{currentPage}/{totalPages}</span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage * itemsPerPage >= filteredUsers.length}

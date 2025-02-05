@@ -51,6 +51,7 @@ function Login() {
           <button className="login-button" onClick={handleLogin}>
             Confirm
           </button>
+          <a href="/register" className="login-link">Register</a>
         </div>
       </div>
     );

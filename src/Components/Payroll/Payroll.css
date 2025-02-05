@@ -30,8 +30,9 @@
     margin-top: 1rem;
   }
   
-  .payroll-table th, .payroll-table td {
-    border: 1px solid #000;
+  .payroll-table th, 
+  .payroll-table td {
+    border: 1px solid #4c4747;
     padding: 8px;
     text-align: left;
   }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import "./Payroll.css";
 import Nav from "../Nav/Nav";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,8 @@ const Payroll = () => {
   const [subcontractors, setSubcontractors] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newSubcontractor, setNewSubcontractor] = useState({ name: "", role: "", hoursWorked: 0, hourlyRate: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -41,6 +43,16 @@ const Payroll = () => {
     setIsModalOpen(true);
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastRow = currentPage * itemsPerPage;
+  const indexOfFirstRow = indexOfLastRow - itemsPerPage;
+  const currentRows = subcontractors.slice(indexOfFirstRow, indexOfLastRow);
+
+  const totalPages = Math.ceil(subcontractors.length / itemsPerPage);
+
   const calculateTotalPay = (hoursWorked, hourlyRate) => {
     return hoursWorked * hourlyRate;
   };
@@ -67,7 +79,7 @@ const Payroll = () => {
             </tr>
             </thead>
             <tbody>
-            {subcontractors.map((subcontractor, index) => (
+            {currentRows.map((subcontractor, index) => (
                 <tr key={index}>
                 <td>{subcontractor.name}</td>
                 <td>{subcontractor.role}</td>
@@ -86,6 +98,16 @@ const Payroll = () => {
             ))}
             </tbody>
         </table>
+
+        <div className="pagination">
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+            <FaAngleLeft />
+          </button>
+          <span>{currentPage}/{totalPages}</span>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+            <FaAngleRight />
+          </button>
+        </div>
 
         {isModalOpen && (
             <div className="modalP">

@@ -60,6 +60,10 @@ const Dashboard = () => {
     handleDeleteProject(id);
   };
 
+  const handleSelectProject = (id) => {
+    navigate(`/project/${id}`);
+  };
+
   const filteredProjects = projects.filter((project) =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -72,7 +76,7 @@ const Dashboard = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
@@ -141,11 +145,11 @@ const Dashboard = () => {
         {/* Project Cards */}
         <div className="gridContainer">
           {paginatedProjects.map((project) => (
-            <div key={project.id} className="projectCard">
+            <div key={project.id} className="projectCard" onClick={() => handleSelectProject(project.id)}>
               <div className="projectCardHeader"></div>
               <h3>{project.name}</h3>
               <p>{project.description}</p>
-              <p>Date of Start: {project.startDate}</p>
+              <p>Start Date: {project.startDate}</p>
               <div className="cardOptions">
                 <span onClick={() => handleEditProject(project.id)}>Edit</span>
                 <span onClick={() => handleDeleteProject(project.id)}>Delete</span>
@@ -159,7 +163,7 @@ const Dashboard = () => {
           <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             <FaAngleLeft style={{fontSize:'16px'}}/>
           </button>
-          <span style={{fontSize:'26px', border:'1px solid #ccc'}}>{currentPage}</span>
+          <span style={{fontSize:'22px'}}>{currentPage}/{totalPages}</span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage * itemsPerPage >= filteredProjects.length}
