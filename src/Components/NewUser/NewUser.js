@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import './NewUser.css';
 import { FaSearch, FaEye, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import axios from "../../axiosConfig";
 
 const NewUser = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -12,7 +13,7 @@ const NewUser = () => {
   const [name, setName] = useState("");
   const [photo, setPhoto] = useState(null);
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [numberSsn, setNumberSsn] = useState("");
+  const [ssn, setSsn] = useState("");
   const [users, setUsers] = useState([]);
   const [role, setRole] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,25 +23,44 @@ const NewUser = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    setUsers(savedUsers);
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/users');
+        console.log("Fetched users:",response.data);
+        setUsers(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar usuários:", err);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
 
-  const handleAddUser = () => {
-    const newUser = { email, password, name, photo,  dateOfBirth, numberSsn, role};
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    setIsModalOpen(false);
-    setEmail("");
-    setPassword("");
-    setName("");
-    setPhoto(null);
-    setDateOfBirth("");
-    setNumberSsn("");
-    setRole("");
-
+  const handleAddUser = async () => {
+    const newUser = { name, email, password, role, birthdate: dateOfBirth };
+    try {
+      const response = await axios.post('http://localhost:5000/api/register', newUser);
+      if (response.status === 201) {
+        const updatedUsers = [...users, newUser];
+        setUsers(updatedUsers);
+        localStorage.setItem("user ", JSON.stringify(updatedUsers));
+        setIsModalOpen(false);
+        setEmail("");
+        setPassword("");
+        setName("");
+        setPhoto(null);
+        setDateOfBirth("");
+        setSsn("");
+        setRole("");
+        console.log("User registered successfully:", response.data);
+      } else {
+        alert(response.data.error);
+      }
+    } catch (err) {
+      console.error("Erro ao registrar usuário:", err);
+      alert("Erro ao registrar usuário. Tente novamente.");
+    }
   };
 
   const handlePhotoChange = (e) => {
@@ -63,7 +83,6 @@ const NewUser = () => {
     const updatedUsers = [...users];
     updatedUsers[index].isActive = !updatedUsers[index].isActive;
     setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
   };
 
   const handleViewUser = (index) => {
@@ -76,7 +95,6 @@ const NewUser = () => {
       user.email === selectedUser.email ? selectedUser : user
     );
     setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
     setIsViewModalOpen(false);
   };
   const filteredUsers = users.filter(user =>
@@ -177,10 +195,10 @@ const NewUser = () => {
                 className="UserInfo"
                 type="text"
                 placeholder="SSN"
-                value={numberSsn}
-                onChange={(e) => setNumberSsn(e.target.value)}
+                value={ssn}
+                onChange={(e) => setSsn(e.target.value)}
                 onBlur={() => {
-                  if (!validateSsn(numberSsn)) {
+                  if (!validateSsn(ssn)) {
                     alert("SSN must be in the format 123-45-6789");
                   } else {
                     return;

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.c9567c92.css",
+    "main.js": "/static/js/main.45962ef2.js",
+    "static/js/488.dcc65187.chunk.js": "/static/js/488.dcc65187.chunk.js",
+    "static/media/contruct 1.png": "/static/media/contruct 1.3b3734157c0bdb85ea0a.png",
+    "static/media/WhatsApp Image 2025-01-24 at 00.39.45.jpeg": "/static/media/WhatsApp Image 2025-01-24 at 00.39.45.a7a6a3188813265e3137.jpeg",
+    "index.html": "/index.html",
+    "main.c9567c92.css.map": "/static/css/main.c9567c92.css.map",
+    "main.45962ef2.js.map": "/static/js/main.45962ef2.js.map",
+    "488.dcc65187.chunk.js.map": "/static/js/488.dcc65187.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c9567c92.css",
+    "static/js/main.45962ef2.js"
+  ]
+}

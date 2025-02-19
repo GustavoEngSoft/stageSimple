@@ -3,29 +3,44 @@ import "./Dashboard.css";
 import { FaSearch, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
+import axios from "../../axiosConfig";
 
-  
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProject, setNewProject] = useState({ name: "", description: "" });
+  const [newProject, setNewProject] = useState({ name: "", description: "", startDate: "" });
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      window.location.href = "/";
-    } else {
-      const savedProjects = JSON.parse(localStorage.getItem(`projects_${user.email}`)) || [];
-      setProjects(savedProjects);
-    }
-  }, [user]);
-
+    console.log("Fetching user information...");
+    axios.get('http://localhost:5000/api/users/me', { withCredentials: true })
+      .then(response => {
+        console.log("User information fetched successfully:", response.data);
+        setUser(response.data);
+        return axios.get(`http://localhost:5000/api/projects?email=${response.data.email}`, { withCredentials: true });
+      })
+      .then(response => {
+        console.log("Projects fetched successfully:", response.data);
+        setProjects(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching user or projects:', error);
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+          console.error("Response headers:", error.response.headers);
+        } else if (error.request) {
+          console.error("Request data:", error.request);
+        } else {
+          console.error("Error message:", error.message);
+        }
+      });
+  }, []);
 
   const handleAddProject = () => {
     setIsModalOpen(true);
@@ -36,21 +51,25 @@ const Dashboard = () => {
   };
 
   const handleSaveProject = () => {
-    if (newProject.name && newProject.description && newProject.startDate) {
-      const newProjectObj = { id: projects.length + 1, ...newProject };
-      const updatedProjects = [...projects, newProjectObj];
-      setProjects(updatedProjects);
-      localStorage.setItem(`projects_${user.email}`, JSON.stringify(updatedProjects));
-      setIsModalOpen(false);
-      setNewProject({ name: "", description: "" });
+    if (newProject.name && newProject.startDate) {
+      const newProjectObj = { ...newProject, userEmail: user.email };
+      axios.post('http://localhost:5000/api/projects', newProjectObj, { withCredentials: true })
+        .then(response => {
+          console.log("Project saved successfully:", response.data);
+          setProjects([...projects, response.data]);
+          setIsModalOpen(false);
+          setNewProject({ name: "", description: "", startDate: "" });
+        })
+        .catch(error => console.error('Error saving project:', error));
     }
   };
 
   const handleDeleteProject = (id) => {
-    const updatedProjects = projects.filter((project) => project.id !== id);
-    setProjects(projects.filter((project) => project.id !== id));
-    localStorage.setItem(`projects_${user.email}`, JSON.stringify(updatedProjects));
-
+    axios.delete(`http://localhost:5000/api/projects/${id}`, { withCredentials: true })
+      .then(() => {
+        setProjects(projects.filter((project) => project.id !== id));
+      })
+      .catch(error => console.error('Error deleting project:', error));
   };
 
   const handleEditProject = (id) => {
@@ -64,9 +83,9 @@ const Dashboard = () => {
     navigate(`/project/${id}`);
   };
 
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProjects = Array.isArray(projects) ? projects.filter((project) =>
+    project.name && project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  ) : [];
 
   const paginatedProjects = filteredProjects.slice(
     (currentPage - 1) * itemsPerPage,
@@ -76,20 +95,20 @@ const Dashboard = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    // Limpar o cookie da sessão
+    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     navigate("/");
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-    <Nav name={user?.name} handleLogout={handleLogout} />
+      <Nav name={user?.name} handleLogout={handleLogout} />
 
-      {/* Main Content */}
       <main className="main-content">
-        {/* Header */}
         <div className="header">
           <div className="search-bar">
             <input
@@ -110,7 +129,6 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Modal */}
         {isModalOpen && (
           <div className="modalOverlay">
             <div className="modalProject">
@@ -122,19 +140,12 @@ const Dashboard = () => {
                 value={newProject.name}
                 onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
               />
-              <textarea
-                className="descriptionProject"
-                placeholder="Description of Project"
-                value={newProject.description}
-                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-              />
               <input
                 className="date_in"
                 type="date"
                 placeholder="Date of Start"
                 value={newProject.startDate}
                 onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
-                
               />
               <button className='save_button' onClick={handleSaveProject}>Save</button>
               <button className='cancel_button' onClick={handleModalClose}>Cancel</button>
@@ -142,15 +153,19 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Project Cards */}
         <div className="gridContainer">
           {paginatedProjects.map((project) => (
-            <div key={project.id} className="projectCard" onClick={() => handleSelectProject(project.id)}>
+            <div key={project.id} className="projectCard">
               <div className="projectCardHeader"></div>
               <h3>{project.name}</h3>
-              <p>{project.description}</p>
               <p>Start Date: {project.startDate}</p>
               <div className="cardOptions">
+                <input
+                  className="selectProject"
+                  type="radio"
+                  name="selectedProject"
+                  onChange={() => handleSelectProject(project.id)}
+                />
                 <span onClick={() => handleEditProject(project.id)}>Edit</span>
                 <span onClick={() => handleDeleteProject(project.id)}>Delete</span>
               </div>
@@ -158,17 +173,16 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Pagination */}
         <div className="pagination">
           <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            <FaAngleLeft style={{fontSize:'16px'}}/>
+            <FaAngleLeft style={{ fontSize: '16px' }} />
           </button>
-          <span style={{fontSize:'22px'}}>{currentPage}/{totalPages}</span>
+          <span style={{ fontSize: '22px' }}>{currentPage}/{totalPages}</span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage * itemsPerPage >= filteredProjects.length}
           >
-            <FaAngleRight style={{fontSize:'16px'}} />
+            <FaAngleRight style={{ fontSize: '16px' }} />
           </button>
         </div>
       </main>

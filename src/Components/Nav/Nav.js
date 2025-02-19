@@ -1,13 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaMoneyCheckAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Nav =(props) => {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user"));
+    const [userRole, setUserRole] = useState("");
+
+    useEffect(() => {
+          const fetchUserRole = async () => {
+            try {
+              const response = await axios.get('http://localhost:5000/api/users/me', { withCredentials: true });
+              setUserRole(response.data.role);
+              console.log('User role:', response.data.role);
+            } catch (err) {
+              console.error("Erro ao obter informações do usuário:", err);
+              if (err.response) {
+                console.error("Response data:", err.response.data);
+                console.error("Response status:", err.response.status);
+                console.error("Response headers:", err.response.headers);
+              }
+              // Redirecionar para a página de login se não estiver autenticado
+              navigate("/");
+            }
+          };
+  
+      fetchUserRole();
+    }, [navigate]);
+  
 
     const handleAddUser = () => {
-      if (user.role === "Product Manager") {
+      if (userRole === "Product Manager") {
         navigate("/newuser");
       } else {
         alert("Access denied. Only Product Managers can add new users.");
@@ -15,7 +38,7 @@ const Nav =(props) => {
     };
 
     const projects = () => {
-      navigate("/dashboard");
+      navigate("/projects");
     };
     
     const handleprofile = () => {
@@ -23,7 +46,7 @@ const Nav =(props) => {
     };
 
     const handlePayroll = () => {
-      if (user.role === "Product Manager") {
+      if (userRole === "Product Manager") {
         navigate("/payroll");
       } else {
         alert("Access denied. Only Product Managers can access the payroll.");

@@ -79,4 +79,17 @@
     object-fit: cover;  /* Garante que a imagem preencha o espaço sem distorcer */
   }
   
+  .show-password-button {
+    position: absolute;
+    right: 38%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    color: black;
+    margin-top: 12px;
+  }
   
+  .show-password-button:hover {
+    text-decoration: underline;
+  }

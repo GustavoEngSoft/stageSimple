@@ -1,15 +1,21 @@
 .project-details {
-    padding: 2rem;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  margin: 2rem;
   }
   
   .project-details h2 {
     font-size: 2rem;
     margin-bottom: 1rem;
+    color: #333;
+    font-family: Arial, 'sans-serif';
   }
   
   .project-details h3 {
     font-size: 1.5rem;
     margin-top: 2rem;
+    color: #555;
   }
   
   .project-details input,
@@ -19,6 +25,7 @@
     margin-bottom: 1rem;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
+    font-size: 1rem;
   }
   
   .project-details table {
@@ -42,8 +49,74 @@
 .mainContent{
   flex: 1;
   padding: 5.5rem;
-  margin-left: 16rem; /* Barra lateral fixa */
+  margin-left: 12rem; /* Barra lateral fixa */
   height: 100vh; /* Garante que o conteúdo ocupe toda a altura da tela */
   overflow-y: auto;
-  margin-top: -5%;
+  margin-top: -6%;
+}
+.addMatrial{
+  background-color: #7fdb5b;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem ;
+  font-weight: bold;
+  color: #fff;
+}
+
+.project-details input:focus,
+.project-details textarea:focus,
+.project-details select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  background-color: #f8f8f8;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+}
+
+.editBudget{
+  background-color: rgb(240, 240, 65);
+  border: none;
+  font-family: Arial, 'sans-serif';
+  padding: 0.5rem;
+  width: 16%;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color:#fff;
+  cursor: pointer;
+}
+
+.removeBudget{
+  background-color: red;
+  border: none;
+  font-family: Arial, 'sans-serif';
+  padding: 0.5rem;
+  width: 16%;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color:#fff;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.removeBudget:hover{
+  color: #000;
+}
+
+.editBudget:hover{
+  color: #000;
+}
+.trash{
+  cursor: pointer;
+  margin-left: 10px;
 }

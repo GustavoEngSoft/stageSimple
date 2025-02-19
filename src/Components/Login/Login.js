@@ -2,27 +2,30 @@ import React, { useState} from "react";
 import logo from '../../img/WhatsApp Image 2025-01-24 at 00.39.45.jpeg';  // Importando a imagem
 import {useNavigate } from "react-router-dom";
 import "./Login.css";
+import axios from "../../axiosConfig";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
   
-    const handleLogin = () => {
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      console.log("Registered users:", users); // Log para verificar os usuários cadastrados
-      const user = users.find((u) => u.email === email && u.password === password);
-      console.log(user);
-      if (user) {
-        if (user.isActive) {
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/dashboard");
+    const handleLogin = async () => {
+      try {
+        const response = await axios.post('http://localhost:5000/api/users/login', { // Atualize a porta para 3000
+          email,
+          password   
+        });
+        console.log('Response:',response);
+        if (response.status === 200) {
+          navigate(response.data.redirectUrl);
         } else {
-          setError("This account is inactive. Please contact the administrator.");
+          setError(response.data.error);
         }
-      } else {
-        setError("Invalid email or password");
+      } catch (err) {
+        setError("An error occurred. Please try again.");
+        console.error("Fetch error:", err);
       }
     };
 
@@ -42,16 +45,21 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             className="login-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+           <button
+            type="button"
+            className="show-password-button"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+          </button>
           <button className="login-button" onClick={handleLogin}>
             Confirm
           </button>
-          <a href="/register" className="login-link">Register</a>
         </div>
       </div>
     );

@@ -247,7 +247,7 @@ body, html {
 }
 .logout{
   position: absolute;
-  margin-top: 100%;
+  margin-top: 60%;
 }
 
 .text-xl{
@@ -271,4 +271,13 @@ body, html {
     margin-left: 0;
     padding: 1rem;
   }
+}
+
+.selectProject{
+  position: absolute;
+  top: -3.2rem;
+  right: 1rem;
+  transform: scale(1.5);
+  margin-right: 12px;
+  cursor: pointer;
 }

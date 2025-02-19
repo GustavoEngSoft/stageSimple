@@ -3,6 +3,7 @@ import { FaPen, FaEye, FaEyeSlash } from "react-icons/fa";
 import Nav from "../Nav/Nav";
 import './Profile.css';
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -22,13 +23,27 @@ const Profile = () => {
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(true); // Estado de carregamento
+  const [error, setError] = useState(null); // Estado de erro
 
   useEffect(() => {
-    const authenticatedUser = JSON.parse(localStorage.getItem("user"));
-    if (authenticatedUser) {
-      setUser(authenticatedUser);
-    }
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/users/me');
+        setUser(response.data);
+        setLoading(false);
+        console.log('Response:', response);
+      } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+
+    fetchUserData();
   }, []);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,20 +64,31 @@ const Profile = () => {
   };
 
   
-  const handleSave = () => {
+  const handleSave = async () => {
     if (hasChanges) {
-      const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
-      const updatedUsers = savedUsers.map(u => u.email === user.email ? user : u);
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-      localStorage.setItem("user", JSON.stringify(user));
-      setHasChanges(false);
+      try {
+        await axios.put('http://localhost:5000/api/users/mE', user);
+        console.log('Dados do usuário atualizados com sucesso');
+        setHasChanges(false);
+      } catch (error) {
+        console.error("Erro ao salvar dados do usuário:", error);
+      }
     }
   };
   
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     navigate("/");
   };
+
+  if (loading) {
+    alert('Carregando...');
+  }
+
+  if (error) {
+    return <div>Erro: {error}</div>;
+  }
   return (
     <div>
       <Nav handleLogout={handleLogout}/>
