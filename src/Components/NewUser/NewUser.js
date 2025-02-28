@@ -11,13 +11,17 @@ const NewUser = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [photo, setPhoto] = useState(null);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [ssn, setSsn] = useState("");
   const [users, setUsers] = useState([]);
   const [role, setRole] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState({
+    name: "",
+    email: "",
+    role: "",
+    dateOfBirth: ""
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
   const navigate = useNavigate();
@@ -38,21 +42,18 @@ const NewUser = () => {
 
 
   const handleAddUser = async () => {
-    const newUser = { name, email, password, role, birthdate: dateOfBirth };
+    const formData = {
+      name,
+      email,
+      password,
+      role,
+      birthdate: dateOfBirth,
+      ssn,
+      isActive: true
+    };
     try {
-      const response = await axios.post('http://localhost:5000/api/register', newUser);
+      const response = await axios.post('http://localhost:5000/api/register', formData);
       if (response.status === 201) {
-        const updatedUsers = [...users, newUser];
-        setUsers(updatedUsers);
-        localStorage.setItem("user ", JSON.stringify(updatedUsers));
-        setIsModalOpen(false);
-        setEmail("");
-        setPassword("");
-        setName("");
-        setPhoto(null);
-        setDateOfBirth("");
-        setSsn("");
-        setRole("");
         console.log("User registered successfully:", response.data);
       } else {
         alert(response.data.error);
@@ -63,39 +64,59 @@ const NewUser = () => {
     }
   };
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhoto(reader.result);
-    };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
-
   const validateSsn = (ssn) => {
     const ssnPattern = /^\d{3}-\d{2}-\d{4}$/;
     return ssnPattern.test(ssn);
   };
 
-  const handleToggleActive = (index) => {
+  const handleToggleActive = async (index) => {
     const updatedUsers = [...users];
     updatedUsers[index].isActive = !updatedUsers[index].isActive;
     setUsers(updatedUsers);
+
+    try {
+      await axios.put(`http://localhost:5000/api/users/${updatedUsers[index].id}`, { isActive: updatedUsers[index].isActive });
+      console.log("User status updated successfully");
+    } catch (err) {
+      console.error("Erro ao atualizar status do usuário:", err);
+      alert("Erro ao atualizar status do usuário. Tente novamente.");
+    }
   };
 
   const handleViewUser = (index) => {
-    setSelectedUser(users[index]);
+    const user = users[index];
+    setSelectedUser({
+      ...user,
+      dateOfBirth: user.birthdate
+  });
     setIsViewModalOpen(true);
   };
 
-  const handleSaveUser = () => {
-    const updatedUsers = users.map(user => 
+  const handleSaveUser = async () => {
+    console.log("Selected User ID:", selectedUser.id); // Log the selected user ID
+    if (!selectedUser.id) {
+      alert("User ID is missing. Cannot update user.");
+      return;
+    }
+    console.log("Selected User:", selectedUser);
+    const updatedUsers = users.map(user =>
       user.email === selectedUser.email ? selectedUser : user
     );
     setUsers(updatedUsers);
     setIsViewModalOpen(false);
+
+    try {
+      const response = await axios.put(`http://localhost:5000/api/user/${selectedUser.id}`, selectedUser);
+      if (response.status === 200) {
+        console.log("User updated successfully:", response.data);
+      } else {
+        console.error("Erro ao atualizar usuário:", response.data.error);
+        alert(response.data.error);
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar usuário:", err);
+      alert("Erro ao atualizar usuário. Tente novamente.");
+    }
   };
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,8 +135,9 @@ const NewUser = () => {
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/");
+        // Limpar o cookie da sessão
+        document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        navigate("/");
   };
 
   return (
@@ -148,14 +170,7 @@ const NewUser = () => {
          {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal">
-              <div className="photo-upload">
-                {photo ? (
-                  <img src={photo} alt="User" className="photo-preview" />
-                ) : (
-                  <div className="photo-placeholder">Upload Photo</div>
-                )}
-                <input type="file" onChange={handlePhotoChange} />
-              </div>
+              <h1 className="text_newUser">New User</h1>
               <input
                 style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
@@ -226,23 +241,9 @@ const NewUser = () => {
          {isViewModalOpen && selectedUser && (
           <div className="modal-overlay">
             <div className="modal">
-              <div className="photo-upload">
-                {selectedUser.photo ? (
-                  <img src={selectedUser.photo} alt="User" className="photo-preview" />
-                ) : (
-                  <div className="photo-placeholder">Upload Photo</div>
-                )}
-                <input type="file" onChange={(e) => {
-                  const file = e.target.files[0];
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setSelectedUser({ ...selectedUser, photo: reader.result });
-                  };
-                  if (file) {
-                    reader.readAsDataURL(file);
-                  }
-                }} />
-              </div>
+              <h1 className="text_newUser">
+                {selectedUser.name}
+              </h1> 
               <input
                style={{ width: "98%", borderRadius: "10px", border: "1px solid #ccc", marginBottom: "1rem", padding: "0.6rem" }}
                 className="UserInfo"
@@ -264,7 +265,7 @@ const NewUser = () => {
                 className="UserInfo"
                 type="date"
                 placeholder="Date of Born"
-                value={selectedUser.dateOfBirth}
+                value={selectedUser.dateOfBirth.split('T')[0]}
                 onChange={(e) => setSelectedUser({ ...selectedUser, dateOfBirth: e.target.value })}
                 onFocus={(e) => e.target.placeholder = ""}
                 onBlur={(e) => e.target.placeholder = "Date of Born"}

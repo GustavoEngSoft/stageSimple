@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
 
 // Middleware para verificar a sessão
@@ -31,11 +32,22 @@ router.get('/me', authenticateSession, (req, res) => {
 });
 
 // Endpoint para atualizar informações do usuário logado
-router.put('/me', authenticateSession, (req, res) => {
+router.put('/me', authenticateSession, async (req, res) => {
   const userId = req.user.id;
-  const { name, email, password, dateOfBirth, ssn, role, photo } = req.body;
-  const query = 'UPDATE users SET name = ?, email = ?, password = ?, dateOfBirth = ?, ssn = ?, role = ?, photo = ? WHERE id = ?';
-  db.query(query, [name, email, password, dateOfBirth, ssn, role, photo, userId], (err, results) => {
+  const { name, email, password,  birthdate, ssn, role, photo } = req.body;
+
+  let hashedPassword = password;
+  if (password) {
+    try {
+      hashedPassword = await bcrypt.hash(password, 10);
+    } catch (err) {
+      console.error('Erro ao hashear a senha:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+  }
+
+  const query = 'UPDATE users SET name = ?, email = ?, password = ?, birthdate = ?, ssn = ?, role = ?, photo = ? WHERE id = ?';
+  db.query(query, [name, email, hashedPassword,  birthdate, ssn, role, photo, userId], (err, results) => {
     if (err) {
       console.error('Erro no servidor:', err);
       return res.status(500).json({ error: 'Erro no servidor' });

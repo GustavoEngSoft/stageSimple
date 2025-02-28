@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "./Dashboard.css";
+import "./ProjectsSimple.css";
 import { FaSearch, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import axios from "../../axiosConfig";
 
-const Dashboard = () => {
+const ProjectsSimple = () => {
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: "", description: "", startDate: "" });
@@ -43,6 +43,10 @@ const Dashboard = () => {
   }, []);
 
   const handleAddProject = () => {
+    if (user?.role !== "Product Manager") {
+      alert("Only Product Managers can create projects.");
+      return;
+    }
     setIsModalOpen(true);
   };
 
@@ -80,6 +84,7 @@ const Dashboard = () => {
   };
 
   const handleSelectProject = (id) => {
+    console.log("Selected project:", id);
     navigate(`/project/${id}`);
   };
 
@@ -97,6 +102,8 @@ const Dashboard = () => {
   };
 
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+
+  const isProductManager = user?.role === "Product Manager";
 
   const handleLogout = () => {
     // Limpar o cookie da sessão
@@ -121,12 +128,14 @@ const Dashboard = () => {
               <FaSearch />
             </button>
           </div>
-          <button
-            onClick={handleAddProject}
-            className="new-project-btn"
-          >
-            <span className="text-lg mr-2">+</span> New Project
-          </button>
+          {isProductManager && (
+            <button
+              onClick={handleAddProject}
+              className="new-project-btn"
+            >
+              <span className="text-lg mr-2">+</span> New Project
+            </button>
+          )}
         </div>
 
         {isModalOpen && (
@@ -166,8 +175,12 @@ const Dashboard = () => {
                   name="selectedProject"
                   onChange={() => handleSelectProject(project.id)}
                 />
+                {isProductManager &&(
+                <>
                 <span onClick={() => handleEditProject(project.id)}>Edit</span>
                 <span onClick={() => handleDeleteProject(project.id)}>Delete</span>
+                </>
+                )}
               </div>
             </div>
           ))}
@@ -190,4 +203,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ProjectsSimple;

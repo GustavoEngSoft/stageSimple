@@ -83,7 +83,7 @@ ul li {
 }
 
 .editBudget{
-  background-color: rgb(240, 240, 65);
+  background-color:#fff;
   border: none;
   font-family: Arial, 'sans-serif';
   padding: 0.5rem;
@@ -91,20 +91,17 @@ ul li {
   border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
-  color:#fff;
+  color:#000;
   cursor: pointer;
 }
 
 .removeBudget{
-  background-color: red;
+  background-color: #fff;
   border: none;
   font-family: Arial, 'sans-serif';
-  padding: 0.5rem;
-  width: 16%;
-  border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
-  color:#fff;
+  color:#000;
   margin-left: 10px;
   cursor: pointer;
 }
@@ -119,4 +116,72 @@ ul li {
 .trash{
   cursor: pointer;
   margin-left: 10px;
+}
+
+.text_n{
+  font-size: 26px;
+  font-weight: bold;
+  color: #000;
+  margin-left: 5%;
+}
+
+.close_n{
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.ReactModal__Content {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 64vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ReactModal__Content h2 {
+  margin-top: 0;
+}
+
+.ReactModal__Content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ReactModal__Content ul li {
+  margin-bottom: 10px;
+}
+
+.ReactModal__Content button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ReactModal__Content button:hover {
+  background-color: #0056b3;
 }

@@ -3,7 +3,7 @@ import { FaPen, FaEye, FaEyeSlash } from "react-icons/fa";
 import Nav from "../Nav/Nav";
 import './Profile.css';
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../../axiosConfig";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -11,32 +11,32 @@ const Profile = () => {
     name: "",
     email: "",
     password: "",
-    dateOfBirth: "",
+    birthdate: "",
     ssn: "",
     role: "",
-    photo: ""
   });
   const [isEditing, setIsEditing] = useState({
     email: false,
     password: false,
-    photo: false
   });
   const [hasChanges, setHasChanges] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(true); // Estado de carregamento
   const [error, setError] = useState(null); // Estado de erro
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/users/me');
-        setUser(response.data);
-        setLoading(false);
+        const userData = response.data;
+        // Converter a data de nascimento para o formato yyyy-MM-dd
+        if (userData.birthdate) {
+          userData.birthdate = new Date(userData.birthdate).toISOString().split('T')[0];
+        }
+        setUser(userData);
         console.log('Response:', response);
       } catch (error) {
         console.error("Erro ao buscar dados do usuário:", error);
         setError(error.message);
-        setLoading(false);
       }
     };
 
@@ -51,23 +51,12 @@ const Profile = () => {
     setHasChanges(true);
   };
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setUser({ ...user, photo: reader.result });
-      setHasChanges(true);
-    };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
 
   
   const handleSave = async () => {
     if (hasChanges) {
       try {
-        await axios.put('http://localhost:5000/api/users/mE', user);
+        await axios.put('http://localhost:5000/api/users/me', user);
         console.log('Dados do usuário atualizados com sucesso');
         setHasChanges(false);
       } catch (error) {
@@ -77,14 +66,11 @@ const Profile = () => {
   };
   
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    // Limpar o cookie da sessão
+    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     navigate("/");
   };
 
-  if (loading) {
-    alert('Carregando...');
-  }
 
   if (error) {
     return <div>Erro: {error}</div>;
@@ -93,18 +79,7 @@ const Profile = () => {
     <div>
       <Nav handleLogout={handleLogout}/>
       <main className="profileContainer">
-        <div className="profilePhoto">
-          {user.photo ? (
-            <img src={user.photo} alt="User" className="photoPreview" />
-          ) : (
-            <div className="photoPlaceholder">Upload Photo</div>
-          )}
-          <input
-            type="file"
-            onChange={handlePhotoChange}
-          />
-        <FaPen onClick={() => setIsEditing({ ...isEditing, photo: !isEditing.photo })} />
-        </div>
+        <h2 class='profileUser'>Profile</h2>
         <div className="profileInfo">
           <div className="profileField">
             <input type="textProfile" value={user.name} readOnly />
@@ -137,7 +112,7 @@ const Profile = () => {
             )}
           </div>
           <div className="profileField">
-            <input placeholder= 'Date of birth' type="date" value={user.dateOfBirth} readOnly />
+            <input placeholder= 'Date of birth' type="date" name= "birthdate" value={user.birthdate} readOnly />
           </div>
           <div className="profileField">
             <input placeholder='SSN' type="textProfile" value={user.ssn} readOnly />

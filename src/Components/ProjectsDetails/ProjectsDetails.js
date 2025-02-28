@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./ProjectsDetails.css";
 import Nav from "../Nav/Nav";
-import { FaTrash } from "react-icons/fa";
+import { FaPen, FaTrash } from "react-icons/fa";
 import axios from "../../axiosConfig";
 import { useNavigate } from "react-router-dom";
+import Modal from 'react-modal';
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -12,10 +13,12 @@ const ProjectDetails = () => {
   const [project, setProject] = useState(null);
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
-  const [budgetItems, setBudgetItems] = useState([]);
+  const [projectMaterials, setProjectMaterials] = useState([]);
   const [newMaterial, setNewMaterial] = useState({ name: "", value: 0 });
   const [allUsers, setAllUsers] = useState([]);
   const [editIndex, setEditIndex] = useState(-1);
+  const [notifications, setNotifications] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,9 +64,9 @@ const ProjectDetails = () => {
     });
 
 
-    axios.get(`http://localhost:5000/api/budgetItems/${projectId}`)
+    axios.get(`http://localhost:5000/api/projectMaterials/${projectId}`)
       .then(response => {
-        setBudgetItems(response.data);
+        setProjectMaterials(response.data);
       })
       .catch(error => {
         console.error('Error fetching budget items:', error);
@@ -78,28 +81,44 @@ const ProjectDetails = () => {
       });
   }, [projectId, user, navigate]);
 
-  useEffect(() => {
-    if (projectId) {
-      localStorage.setItem(`members_${projectId}`, JSON.stringify(members));
+
+
+  const handleAddMember = (memberEmail) => {
+    if (user?.role !== "Product Manager") {
+      alert("Only Product Managers can add members.");
+      return;
     }
-  }, [members, projectId]);
-
-
-  const handleAddMember = (member) => {
-    axios.post(`http://localhost:5000/api/members/${projectId}`, { member })
-      .then(response => {
-        setMembers([...members, response.data]);
-      })
-      .catch(error => {
-        console.error('Error adding member:', error);
-      });
+    const selectedUser = allUsers.find(user => user.email === memberEmail);
+    if (selectedUser) {
+       // Verificar se o membro já foi adicionado
+       const isMemberAlreadyAdded = members.some(member => member.email === selectedUser.email);
+       if (isMemberAlreadyAdded) {
+         alert("Este membro já foi adicionado ao projeto.");
+         return;
+       }
+      console.log("Selected User:", selectedUser);
+      console.log("Request Body", { member: selectedUser.id });
+      axios.post(`http://localhost:5000/api/members/${projectId}`, { member: selectedUser.id })
+        .then(response => {
+          setMembers([...members, response.data]);
+          addNotification(`Member ${selectedUser.name} added to the project.`);
+        })
+        .catch(error => {
+          console.error('Error adding member:', error);
+        });
+    }
   };
 
   const handleRemoveMember = (index) => {
+    if (user?.role !== "Product Manager") {
+      alert("Only Product Managers can remove members.");
+      return;
+    }
     const memberToRemove = members[index];
     axios.delete(`http://localhost:5000/api/members/${projectId}/${memberToRemove.id}`)
       .then(() => {
         setMembers(members.filter((_, i) => i !== index));
+        addNotification(`Member ${memberToRemove.name} removed from the project.`);
       })
       .catch(error => {
         console.error('Error removing member:', error);
@@ -113,6 +132,7 @@ const ProjectDetails = () => {
     axios.post(`http://localhost:5000/api/files/${projectId}`, formData)
       .then(response => {
         setFiles([...files, response.data]);
+        addNotification(`File ${file.name} added to the project.`);
       })
       .catch(error => {
         console.error('Error adding file:', error);
@@ -124,6 +144,7 @@ const ProjectDetails = () => {
     axios.delete(`http://localhost:5000/api/files/${projectId}/${fileToRemove.id}`)
       .then(() => {
         setFiles(files.filter((_, i) => i !== index));
+        addNotification(`File ${fileToRemove.name} removed from the project.`);
       })
       .catch(error => {
         console.error('Error removing file:', error);
@@ -133,22 +154,24 @@ const ProjectDetails = () => {
   const handleAddBudgetItem = () => {
     if (editIndex >= 0) {
       const updatedItem = { ...newMaterial, projectId };
-      axios.put(`http://localhost:5000/api/budgetItems/${budgetItems[editIndex].id}`, updatedItem)
+      axios.put(`http://localhost:5000/api/projectMaterials/${projectMaterials[editIndex].id}`, updatedItem)
         .then(response => {
-          const updatedItems = budgetItems.map((item, index) =>
+          const updatedItems = projectMaterials.map((item, index) =>
             index === editIndex ? response.data : item
           );
-          setBudgetItems(updatedItems);
+          setProjectMaterials(updatedItems);
           setEditIndex(-1);
+          addNotification(`Budget item ${newMaterial.name} updated.`);
         })
         .catch(error => {
           console.error('Error updating budget item:', error);
         });
     } else {
       const newItem = { ...newMaterial, projectId };
-      axios.post(`http://localhost:5000/api/budgetItems`, newItem)
+      axios.post(`http://localhost:5000/api/projectMaterials`, newItem)
         .then(response => {
-          setBudgetItems([...budgetItems, response.data]);
+          setProjectMaterials([...projectMaterials, response.data]);
+          addNotification(`Budget item ${newMaterial.name} added.`);
         })
         .catch(error => {
           console.error('Error adding budget item:', error);
@@ -158,34 +181,46 @@ const ProjectDetails = () => {
   };
 
   const handleEditBudgetItem = (index) => {
-    setNewMaterial(budgetItems[index]);
+    setNewMaterial(projectMaterials[index]);
     setEditIndex(index);
   };
 
   const handleRemoveBudgetItem = (index) => {
-    const itemToRemove = budgetItems[index];
-    axios.delete(`http://localhost:5000/api/budgetItems/${itemToRemove.id}`)
+    const itemToRemove = projectMaterials[index];
+    axios.delete(`http://localhost:5000/api/projectMaterials/${itemToRemove.id}`)
       .then(() => {
-        setBudgetItems(budgetItems.filter((_, i) => i !== index));
+        setProjectMaterials(projectMaterials.filter((_, i) => i !== index));
+        addNotification(`Budget item ${itemToRemove.name} removed.`);
       })
       .catch(error => {
         console.error('Error removing budget item:', error);
       });
   };
 
-  /*const addNotification = (member) => {
-    const notifications = JSON.parse(localStorage.getItem(`notifications_${member}`)) || [];
-    notifications.push(`You have been added to the project: ${project.name}`);
-    localStorage.setItem(`notifications_${member}`, JSON.stringify(notifications));
+  const addNotification = (message) => {
+    const newNotification = {
+      message,
+      user: user.name,
+      timestamp: new Date().toLocaleString()
+    };
+    setNotifications([...notifications, newNotification]);
   };
 
-  const linkProjectToUser = (member) => {
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  /*const linkProjectToUser = (member) => {
     const userProjects = JSON.parse(localStorage.getItem(`projects_${member}`)) || [];
     userProjects.push(project);
     localStorage.setItem(`projects_${member}`, JSON.stringify(userProjects));
   };*/
 
-  const totalBudget = budgetItems.reduce((total, item) => total + parseFloat(item.value), 0);
+  const totalBudget = projectMaterials.reduce((total, item) => total + parseFloat(item.value), 0);
 
   if (!project) {
     return <div>Loading...</div>;
@@ -199,7 +234,7 @@ const ProjectDetails = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Nav name={user?.name} handleLogout={handleLogout} />
+      <Nav name={user?.name} handleLogout={handleLogout} notifications={notifications} openModal={openModal} />
       <main className="mainContent">
         <div className="project-details">
         <h2>{project ? project.name : "Project Name Not Available"}</h2>
@@ -207,16 +242,18 @@ const ProjectDetails = () => {
 
           <div>
             <h3>Add Members</h3>
-            <select style={{ padding: '0.5rem' }} onChange={(e) => handleAddMember(e.target.value)}>
+            {user?.role === "Product Manager" && (
+              <select style={{ padding: '0.5rem' }} onChange={(e) => handleAddMember(e.target.value)}>
               <option value="">Select Member</option>
               {allUsers.map((user, index) => (
                 <option key={index} value={user.email}>{user.name} ({user.email})</option>
               ))}
             </select>
+            )}
             <ul>
               {members.map((member, index) => (
                 <li key={index}>
-                  {member}
+                  {member.name}
                   <FaTrash className="trash" onClick={() => handleRemoveMember(index)} />
                 </li>
               ))}
@@ -225,11 +262,11 @@ const ProjectDetails = () => {
 
           <div>
             <h3>Attach Files</h3>
-            <input type="file" onChange={(e) => handleAddFile(e.target.files[0])} />
+            <input type="file" lang="en" onChange={(e) => handleAddFile(e.target.files[0])} />
             <ul>
               {files.map((file, index) => (
                 <li key={index}>
-                  <a href={URL.createObjectURL(file)} download={file.name}>{file.name}</a>
+                  <a href={`http://localhost:5000/api/files/download/${file.id}`} download={file.name}>{file.name}</a>
                   <FaTrash className="trash" onClick={() => handleRemoveFile(index)} />
                 </li>
               ))}
@@ -259,13 +296,13 @@ const ProjectDetails = () => {
                 </tr>
               </thead>
               <tbody>
-                {budgetItems.map((item, index) => (
+                {projectMaterials.map((item, index) => (
                   <tr key={index}>
                     <td>{item.name}</td>
                     <td>{item.value}</td>
                     <td>
-                      <button className="editBudget" onClick={() => handleEditBudgetItem(index)}>Edit</button>
-                      <button className="removeBudget" onClick={() => handleRemoveBudgetItem(index)}>Remove</button>
+                      <button className="editBudget" onClick={() => handleEditBudgetItem(index)}><FaPen/></button>
+                      <button className="removeBudget" onClick={() => handleRemoveBudgetItem(index)}><FaTrash/></button>
                     </td>
                   </tr>
                 ))}
@@ -273,6 +310,24 @@ const ProjectDetails = () => {
             </table>
             <p>Total Budget: {totalBudget}</p>
           </div>
+          <Modal
+            isOpen={isModalOpen}
+            onRequestClose={closeModal}
+            contentLabel="Notifications"
+            className="modal_notifications"
+          >
+            <h2 className="text_n">Notifications</h2>
+            <ul className="notifications">
+              {notifications.map((notification, index) => (
+                <li key={index}>
+                  <p>{notification.message}</p>
+                  <p><strong>User:</strong> {notification.user}</p>
+                  <p><strong>Time:</strong> {notification.timestamp}</p>
+                </li>
+              ))}
+            </ul>
+            <button className="close_n" onClick={closeModal}>Close</button>
+          </Modal>
         </div>
       </main>
     </div>

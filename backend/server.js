@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
@@ -7,7 +6,8 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(cors({
     origin: 'http://localhost:3000',
@@ -117,6 +117,7 @@ app.use('/api', rotaRegistro);
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
+
 // Importar e usar a rota de projetos
 const projectsRouter = require('./routes/project');
 app.use('/api/projects', projectsRouter);
@@ -130,7 +131,7 @@ app.use('/api/files', filesRouter);
 
 // Importar e usar a rota de itens de orçamento
 const budgetItemsRouter = require('./routes/projectMaterials');
-app.use('/api/budgetItems', budgetItemsRouter);
+app.use('/api/projectMaterials', budgetItemsRouter);
 
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../src/build')));
@@ -142,5 +143,3 @@ app.get('*', (req, res) => {
 app.listen(5000, () => {
     console.log('Servidor rodando na porta 5000');
 });
-
-
