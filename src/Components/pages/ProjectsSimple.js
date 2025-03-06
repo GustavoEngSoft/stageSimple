@@ -8,7 +8,7 @@ import axios from "../../axiosConfig";
 const ProjectsSimple = () => {
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProject, setNewProject] = useState({ name: "", description: "", startDate: "" });
+  const [newProject, setNewProject] = useState({ name: "", startDate: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,11 +18,11 @@ const ProjectsSimple = () => {
 
   useEffect(() => {
     console.log("Fetching user information...");
-    axios.get('http://localhost:5000/api/users/me', { withCredentials: true })
+    axios.get('http://localhost:5000/api/users/me', {withCredentials: true})
       .then(response => {
         console.log("User information fetched successfully:", response.data);
         setUser(response.data);
-        return axios.get(`http://localhost:5000/api/projects?email=${response.data.email}`, { withCredentials: true });
+        return axios.get(`http://localhost:5000/api/projects?email=${response.data.email}`, {withCredentials: true});
       })
       .then(response => {
         console.log("Projects fetched successfully:", response.data);
@@ -57,19 +57,21 @@ const ProjectsSimple = () => {
   const handleSaveProject = () => {
     if (newProject.name && newProject.startDate) {
       const newProjectObj = { ...newProject, userEmail: user.email };
-      axios.post('http://localhost:5000/api/projects', newProjectObj, { withCredentials: true })
+      console.log("Saving project:", newProjectObj);
+      axios.post('http://localhost:5000/api/projects', newProjectObj, {withCredentials: true})
         .then(response => {
           console.log("Project saved successfully:", response.data);
           setProjects([...projects, response.data]);
           setIsModalOpen(false);
-          setNewProject({ name: "", description: "", startDate: "" });
+          setNewProject({ name: "", startDate: "" });
+          console.log("Projects:", projects);
         })
         .catch(error => console.error('Error saving project:', error));
     }
   };
 
   const handleDeleteProject = (id) => {
-    axios.delete(`http://localhost:5000/api/projects/${id}`, { withCredentials: true })
+    axios.delete(`http://localhost:5000/api/projects/${id}`, {withCredentials: true})
       .then(() => {
         setProjects(projects.filter((project) => project.id !== id));
       })
@@ -78,7 +80,7 @@ const ProjectsSimple = () => {
 
   const handleEditProject = (id) => {
     const projectToEdit = projects.find((project) => project.id === id);
-    setNewProject({ name: projectToEdit.name, description: projectToEdit.description, startDate: projectToEdit.startDate });
+    setNewProject({ name: projectToEdit.name, startDate: projectToEdit.startDate });
     setIsModalOpen(true);
     handleDeleteProject(id);
   };
@@ -86,6 +88,10 @@ const ProjectsSimple = () => {
   const handleSelectProject = (id) => {
     console.log("Selected project:", id);
     navigate(`/project/${id}`);
+  };
+
+  const handleStatusProject = (id) => {
+    navigate(`/projectStatus/${id}`);
   };
 
   const filteredProjects = Array.isArray(projects) ? projects.filter((project) =>
@@ -105,15 +111,10 @@ const ProjectsSimple = () => {
 
   const isProductManager = user?.role === "Product Manager";
 
-  const handleLogout = () => {
-    // Limpar o cookie da sessão
-    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    navigate("/");
-  };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Nav name={user?.name} handleLogout={handleLogout} />
+      <Nav name={user?.name}/>
 
       <main className="main-content">
         <div className="header">
@@ -181,6 +182,7 @@ const ProjectsSimple = () => {
                 <span onClick={() => handleDeleteProject(project.id)}>Delete</span>
                 </>
                 )}
+                <span onClick={() => handleStatusProject(project.id)}>Status</span>
               </div>
             </div>
           ))}

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db'); // Importar a conexão com o banco de dados
-const { isProductManager } = require('../middleware/auth');
+const {authenticateUser, isProductManager } = require('../middleware/auth');
 
 // Função para formatar a data
 const formatDate = (date) => {
@@ -13,29 +13,29 @@ const formatDate = (date) => {
 };
 
 // Criar um novo projeto
-router.post('/', isProductManager, (req, res) => {
-  const { name, description, startDate, userEmail } = req.body;
+router.post('/', authenticateUser, isProductManager, (req, res) => {
+  const { name, startDate, userEmail } = req.body;
   const formattedDate = formatDate(startDate);
-  const query = 'INSERT INTO projects (name, description, startDate, userEmail) VALUES (?, ?, ?, ?)';
-  db.query(query, [name, description, formattedDate, userEmail], (err, results) => {
+  const query = 'INSERT INTO projects (name, startDate, userEmail) VALUES (?, ?, ?)';
+  db.query(query, [name, formattedDate, userEmail], (err, results) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
-    res.status(201).json({ id: results.insertId, name, description, startDate, userEmail });
+    res.status(201).json({ id: results.insertId, name, startDate, userEmail });
   });
   console.log('Projeto criado com sucesso');
 });
 
 // Obter projetos por email do usuário
-router.get('/', (req, res) => {
+router.get('/', authenticateUser, (req, res) => {
   const {email} = req.query;
   const query = `SELECT p.*
   FROM projects p
   LEFT JOIN members m ON p.id = m.projectId
   LEFT JOIN users u ON m.member = u.id
-  WHERE u.email = ?
+  WHERE u.email = ? OR p.userEmail = ?
 `;
-  db.query(query, [email], (err, results) => {
+  db.query(query, [email, email], (err, results) => {
     if (err) {
       return res.status(500).json({ message: err.message });
     }
@@ -62,24 +62,44 @@ router.get('/:id', (req, res) => {
 });
 
 // Atualizar um projeto
-router.put('/:id', isProductManager, (req, res) => {
+router.put('/:id', authenticateUser, isProductManager, (req, res) => {
   const {id} = req.params;
-  const { name, description, startDate, userEmail } = req.body;
+  const { name, startDate, userEmail } = req.body;
   const formattedDate = formatDate(startDate);
-  const query = 'UPDATE projects SET name = ?, description = ?, startDate = ?, userEmail = ? WHERE id = ?';
-  db.query(query, [name, description, formattedDate, userEmail, id], (err, results) => {
+  const query = 'UPDATE projects SET name = ?, startDate = ?, userEmail = ? WHERE id = ?';
+  db.query(query, [name, formattedDate, userEmail, id], (err, results) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
-    res.json({ id: req.params.id, name, description, startDate, userEmail });
+    res.json({ id: req.params.id, name, startDate, userEmail });
   });
 });
 
+// Atualizar o status do projeto
+router.put('/:id/status', authenticateUser, isProductManager, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ message: 'Status is required' });
+  }
+
+  const progress = (Object.values(status).filter(value => value).length / 4) * 100;
+  const finalStatus = progress === 100 ? 'completed' : JSON.stringify(status);
+  const query = 'UPDATE projects SET status = ?, progress = ? WHERE id = ?';
+  db.query(query, [finalStatus, progress, id], (err, results) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    res.json({ id, status, progress });
+  });
+});  
+
 // Deletar um projeto
-router.delete('/:id', isProductManager, (req, res) => {
+router.delete('/:id', authenticateUser, isProductManager, (req, res) => {
   const {id} = req.params;
   const query = 'DELETE FROM projects WHERE id = ?';
-  db.query(query, [req.params.id], (err, results) => {
+  db.query(query, [id], (err, results) => {
     if (err) {
       return res.status(500).json({ message: err.message });
     }

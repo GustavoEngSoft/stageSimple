@@ -9,6 +9,7 @@ import ProjectDetails from "./Components/ProjectsDetails/ProjectsDetails";
 import Register from "./Components/Register/Register";
 import History from "./Components/History/History";
 import Modal from "react-modal";
+import ProjectStatus from "./Components/ProjectStatus/ProjectStatus";
 
 Modal.setAppElement("#root");
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/project/:projectId" element={<ProjectDetails/>}/>
         <Route path="/history" element={<History />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/projectStatus/:projectId" element={<ProjectStatus/>}/>
       </Routes>
     </Router>
   );

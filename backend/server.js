@@ -133,6 +133,9 @@ app.use('/api/files', filesRouter);
 const budgetItemsRouter = require('./routes/projectMaterials');
 app.use('/api/projectMaterials', budgetItemsRouter);
 
+const payrollRouter = require('./routes/payroll');
+app.use('/api/payroll', payrollRouter);
+
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../src/build')));
 

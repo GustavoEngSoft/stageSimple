@@ -3,7 +3,7 @@ import { FaUser, FaFileAlt, FaClipboardCheck, FaPlus, FaBell, FaSignOutAlt, FaMo
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Nav = ({ name, handleLogout, notifications, openModal }) => {
+const Nav = ({ name, notifications, openModal }) => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState("");
 
@@ -58,6 +58,12 @@ const Nav = ({ name, handleLogout, notifications, openModal }) => {
   const handleHistory = () => {
     navigate("/history");
   }; 
+
+  const handleLogout = () => {
+    document
+      .cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    navigate("/");
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">

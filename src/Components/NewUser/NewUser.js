@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import './NewUser.css';
 import { FaSearch, FaEye, FaAngleLeft, FaAngleRight } from "react-icons/fa";
@@ -24,8 +23,6 @@ const NewUser = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
-  const navigate = useNavigate();
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -134,15 +131,9 @@ const NewUser = () => {
   
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-  const handleLogout = () => {
-        // Limpar o cookie da sessão
-        document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        navigate("/");
-  };
-
   return (
     <div>
-      <Nav handleLogout={handleLogout} />
+      <Nav/>
       {/* Main Content */}
       <main className="main-content">
         {/* Header */}

@@ -226,15 +226,10 @@ const ProjectDetails = () => {
     return <div>Loading...</div>;
   }
 
-  const handleLogout = () => {
-    // Limpar o cookie da sessão
-    document.cookie = "connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    navigate("/");
-  };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Nav name={user?.name} handleLogout={handleLogout} notifications={notifications} openModal={openModal} />
+      <Nav name={user?.name} notifications={notifications} openModal={openModal} />
       <main className="mainContent">
         <div className="project-details">
         <h2>{project ? project.name : "Project Name Not Available"}</h2>

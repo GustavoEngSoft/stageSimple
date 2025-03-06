@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaPlus, FaEdit, FaTrash, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import "./Payroll.css";
 import Nav from "../Nav/Nav";
-import { useNavigate } from "react-router-dom";
+import axios from "../../axiosConfig";
 
 const Payroll = () => {
   const [subcontractors, setSubcontractors] = useState([]);
@@ -10,37 +10,56 @@ const Payroll = () => {
   const [newSubcontractor, setNewSubcontractor] = useState({ name: "", role: "", hoursWorked: 0, hourlyRate: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/");
-  };
 
   useEffect(() => {
-    const savedSubcontractors = JSON.parse(localStorage.getItem("subcontractors")) || [];
-    setSubcontractors(savedSubcontractors);
+    axios.get('http://localhost:5000/api/payroll')
+      .then(response => {
+        setSubcontractors(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching subcontractors:', error);
+      });
   }, []);
 
   const handleAddSubcontractor = () => {
-    const updatedSubcontractors = [...subcontractors, newSubcontractor];
-    setSubcontractors(updatedSubcontractors);
-    localStorage.setItem("subcontractors", JSON.stringify(updatedSubcontractors));
-    setIsModalOpen(false);
-    setNewSubcontractor({ name: "", role: "", hoursWorked: 0, hourlyRate: 0 });
+    axios.post('http://localhost:5000/api/payroll', newSubcontractor)
+    .then(response => {
+      setSubcontractors([...subcontractors, response.data]);
+      setIsModalOpen(false);
+      setNewSubcontractor({ name: "", role: "", hoursWorked: 0, hourlyRate: 0 });
+    })
+    .catch(error => {
+      console.error('Error adding subcontractor:', error);
+    });
   };
 
-  const handleDeleteSubcontractor = (index) => {
-    const updatedSubcontractors = subcontractors.filter((_, i) => i !== index);
-    setSubcontractors(updatedSubcontractors);
-    localStorage.setItem("subcontractors", JSON.stringify(updatedSubcontractors));
+  const handleDeleteSubcontractor = (id) => {
+    axios.delete(`http://localhost:5000/api/payroll/${id}`)
+    .then(() => {
+      setSubcontractors(subcontractors.filter(subcontractor => subcontractor.id !== id));
+    })
+    .catch(error => {
+      console.error('Error deleting subcontractor:', error);
+    });
   };
 
-  const handleEditSubcontractor = (index) => {
-    const subcontractorToEdit = subcontractors[index];
-    setNewSubcontractor(subcontractorToEdit);
-    handleDeleteSubcontractor(index);
+  const handleEditSubcontractor = (subcontractor) => {
+    setNewSubcontractor(subcontractor);
     setIsModalOpen(true);
+  };
+
+  const handleSaveEditSubcontractor = () => {
+    axios.put(`http://localhost:5000/api/payroll/${newSubcontractor.id}`, newSubcontractor)
+      .then(response => {
+        setSubcontractors(subcontractors.map(subcontractor => 
+          subcontractor.id === newSubcontractor.id ? response.data : subcontractor
+        ));
+        setIsModalOpen(false);
+        setNewSubcontractor({ name: "", role: "", hoursWorked: 0, hourlyRate: 0 });
+      })
+      .catch(error => {
+        console.error('Error updating subcontractor:', error);
+      });
   };
 
   const handlePageChange = (pageNumber) => {
@@ -49,9 +68,9 @@ const Payroll = () => {
 
   const indexOfLastRow = currentPage * itemsPerPage;
   const indexOfFirstRow = indexOfLastRow - itemsPerPage;
-  const currentRows = subcontractors.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = Array.isArray(subcontractors) ? subcontractors.slice(indexOfFirstRow, indexOfLastRow) : [];
 
-  const totalPages = Math.ceil(subcontractors.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(subcontractors.length / itemsPerPage));
 
   const calculateTotalPay = (hoursWorked, hourlyRate) => {
     return hoursWorked * hourlyRate;
@@ -61,7 +80,7 @@ const Payroll = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-        <Nav handleLogout={handleLogout} />
+        <Nav />
         <main className="payroll-container">
         <h1>Payroll Management</h1>
         <button className="add-button" onClick={() => setIsModalOpen(true)}>
@@ -79,18 +98,18 @@ const Payroll = () => {
             </tr>
             </thead>
             <tbody>
-            {currentRows.map((subcontractor, index) => (
-                <tr key={index}>
+            {currentRows.map((subcontractor) => (
+                <tr key={subcontractor.id}>
                 <td>{subcontractor.name}</td>
                 <td>{subcontractor.role}</td>
                 <td>{subcontractor.hoursWorked}</td>
                 <td>${subcontractor.hourlyRate}</td>
                 <td>${calculateTotalPay(subcontractor.hoursWorked, subcontractor.hourlyRate)}</td>
                 <td>
-                    <button onClick={() => handleEditSubcontractor(index)}>
+                    <button onClick={() => handleEditSubcontractor(subcontractor)}>
                     <FaEdit />
                     </button>
-                    <button onClick={() => handleDeleteSubcontractor(index)}>
+                    <button onClick={() => handleDeleteSubcontractor(subcontractor.id)}>
                     <FaTrash />
                     </button>
                 </td>
@@ -112,7 +131,7 @@ const Payroll = () => {
         {isModalOpen && (
             <div className="modalP">
             <div className="modalPayroll">
-                <h2>Add/Edit Subcontractor</h2>
+                <h2>{newSubcontractor.id ? "Edit Subcontractor" : "Add Subcontractor"}</h2>
                 <input
                 type="text"
                 placeholder="Name"
@@ -137,7 +156,7 @@ const Payroll = () => {
                 value={newSubcontractor.hourlyRate}
                 onChange={(e) => setNewSubcontractor({ ...newSubcontractor, hourlyRate: e.target.value })}
                 />
-                <button className="bottonSave" onClick={handleAddSubcontractor}>Save</button>
+                <button className="bottonSave" onClick={newSubcontractor.id ? handleSaveEditSubcontractor : handleAddSubcontractor}>Save</button>
                 <button className= 'bottonCancel' onClick={() => setIsModalOpen(false)}>Cancel</button>
             </div>
             </div>
