@@ -61,6 +61,7 @@
   padding: 0.5rem ;
   font-weight: bold;
   color: #fff;
+  cursor: pointer;
 }
 
 .project-details input:focus,
@@ -184,4 +185,53 @@ ul li {
 
 .ReactModal__Content button:hover {
   background-color: #0056b3;
+
+}
+
+.filesPastas{
+  background-color: none;
+  color: #000;
+  text-decoration: none;
+  margin-left: 1%;
+}
+
+.addFolder{
+  background-color: #7fdb5b;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem ;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ellipsis {
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.dropdown {
+  position: relative;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown button:hover {
+  background-color: #f0f0f0;
+}
+.folder-header {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
 }

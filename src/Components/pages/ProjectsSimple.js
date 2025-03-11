@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import axios from "../../axiosConfig";
 
+
 const ProjectsSimple = () => {
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +62,11 @@ const ProjectsSimple = () => {
       axios.post('http://localhost:5000/api/projects', newProjectObj, {withCredentials: true})
         .then(response => {
           console.log("Project saved successfully:", response.data);
-          setProjects([...projects, response.data]);
+          // Verificar se o projeto já está na lista antes de adicioná-lo
+          const isProjectAlreadyAdded = projects.some(project => project.id === response.data.id);
+          if (!isProjectAlreadyAdded) {
+            setProjects([...projects, response.data]);
+          }
           setIsModalOpen(false);
           setNewProject({ name: "", startDate: "" });
           console.log("Projects:", projects);

@@ -4,6 +4,7 @@ import './NewUser.css';
 import { FaSearch, FaEye, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import axios from "../../axiosConfig";
 
+
 const NewUser = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

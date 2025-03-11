@@ -13,7 +13,7 @@ function Login() {
   
     const handleLogin = async () => {
       try {
-        const response = await axios.post('http://localhost:5000/api/users/login', { // Atualize a porta para 3000
+        const response = await axios.post('http://localhost:5000/api/users/login', { // Atualize a porta para 5000
           email,
           password   
         });
