@@ -47,9 +47,13 @@ router.get('/:projectId/:folderId', (req, res) => {
 // Adicionar um novo arquivo ao projeto e pasta
 router.post('/:projectId/:folderId', upload.single('file'), (req, res) => {
   const { projectId, folderId } = req.params;
-  const { originalname, buffer } = req.file;
-  const query = 'INSERT INTO projectfiles (projectId, folderId, name, data) VALUES (?, ?, ?, ?)';
-  db.query(query, [projectId, folderId, originalname, buffer], (err, results) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+  const { originalname, buffer, mimetype } = req.file;
+  console.log('Buffer:', buffer.length);
+  const query = 'INSERT INTO projectfiles (projectId, name, data, folderId, mimetype) VALUES (?, ?, ?, ?, ?)';
+  db.query(query, [projectId, originalname, buffer, folderId, mimetype], (err, results) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
@@ -71,7 +75,7 @@ router.get('/download/:fileId', (req, res) => {
     }
     const file = results[0];
     res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
-    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Type', file.mimetype);
     res.send(file.data);
   });
 });
