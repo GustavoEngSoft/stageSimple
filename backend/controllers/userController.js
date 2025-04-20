@@ -6,8 +6,10 @@ exports.login = async (req, res) => {
 
   try {
     // Encontrar o usuário pelo email
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
+    const query = 'SELECT * FROM users WHERE email = $1 LIMIT 1';
+    const result = await db.query(query, [email]);
+    const user = result.rows[0];
+        if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -118,7 +120,7 @@ exports.updateUserProfile = async (req, res) => {
   const { name, email, role, birthdate, ssn, isActive, password } = req.body;
 
   try {
-    let query = 'UPDATE users SET name = ?, email = ?, role = ?, birthdate = ?, ssn = ?, isActive = ?';
+    const query = 'UPDATE users SET name = $1, email = $2, role = $3, birthdate = $4, ssn = $5, isActive = $6 WHERE id = $7';
     const values = [name, email, role, birthdate, ssn, isActive];
 
     if (password) {

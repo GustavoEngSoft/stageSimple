@@ -6,7 +6,7 @@ const authenticateUser = (req, res, next) => {
     return res.sendStatus(401);
   }
   // Definir req.user com base no userId da sessão
-  const query = 'SELECT * FROM users WHERE id = ?';
+  const query = 'SELECT * FROM users WHERE id = $1';
   db.query(query, [req.session.userId], (err, results) => {
     if (err) {
       console.error('Erro no servidor:', err);
@@ -26,17 +26,18 @@ const isProductManager = (req, res, next) => {
     return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
 
-  const query = 'SELECT role FROM users WHERE email = ?';
+  const query = 'SELECT role FROM users WHERE email = $1';
   db.query(query, [req.user.email], (err, results) => {
     if (err) {
       return res.status(500).json({ message: err.message });
     }
-    if (results.length > 0 && results[0].role === 'Product Manager') {
+    if (results.rows.length > 0 && results.rows[0].role === 'Product Manager') {
       next();
     } else {
       res.status(403).json({ message: 'Access denied. Only Product Managers can perform this action.' });
     }
   });
 };
+
 
 module.exports = { authenticateUser, isProductManager };

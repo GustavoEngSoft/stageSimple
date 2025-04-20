@@ -8,23 +8,25 @@ const bcrypt = require('bcryptjs');
 const authenticateSession = (req, res, next) => {
   if (!req.session.userId) {
     console.log('Sessão não autenticada');
-    return res.sendStatus(401);
+    return res.sendStatus(401); // Retorna erro 401 caso a sessão não exista
   }
-  // Definir req.user com base no userId da sessão
-  const query = 'SELECT * FROM users WHERE id = ?';
+
+  const query = 'SELECT * FROM users WHERE id = $1'; // Ajustado para PostgreSQL
   db.query(query, [req.session.userId], (err, results) => {
     if (err) {
       console.error('Erro no servidor:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
     }
-    if (results.length > 0) {
-      req.user = results[0];
-      next();
+
+    if (results.rows.length > 0) {
+      req.user = results.rows[0]; // Use `rows` para PostgreSQL
+      next(); // Permite que o fluxo continue se o usuário for encontrado
     } else {
       res.status(404).json({ error: 'Usuário não encontrado' });
     }
   });
 };
+
 
 // Endpoint para obter informações do usuário logado
 router.get('/me', authenticateSession, (req, res) => {
