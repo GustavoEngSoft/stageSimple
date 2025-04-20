@@ -21,8 +21,9 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Defina como true se estiver usando HTTPS
+    cookie: { secure: false, httpOnly: true } // Não define o cookie
 }));
+//
 
 // Rota de login
 app.post('/api/users/login', (req, res) => {
@@ -37,7 +38,7 @@ app.post('/api/users/login', (req, res) => {
         return res.status(400).json({ error: 'Email e senha são obrigatórios' });
     }
 
-    const query = 'SELECT * FROM users WHERE email = ?';
+    const query = 'SELECT * FROM users WHERE email = $1';
     db.query(query, [email], (err, results) => {
         if (err) {
             console.error('Erro no servidor:', err);
@@ -47,8 +48,8 @@ app.post('/api/users/login', (req, res) => {
         // Adicione logs para verificar os resultados da consulta
         console.log('Resultados da consulta:', results);
 
-        if (results.length > 0) {
-            const user = results[0];
+        if (results.rows.length > 0) {
+            const user = results.rows[0];
 
             // Verificar se o usuário está bloqueado
             if (user.loginAttempts > 6) {
@@ -66,7 +67,7 @@ app.post('/api/users/login', (req, res) => {
 
                 if (isMatch) {
                     // Resetar o contador de tentativas de login
-                    const resetAttemptsQuery = 'UPDATE users SET loginAttempts = 0 WHERE email = ?';
+                    const resetAttemptsQuery = 'UPDATE users SET loginAttempts = 0 WHERE email = $1';
                     db.query(resetAttemptsQuery, [email], (err, results) => {
                         if (err) {
                             console.error('Erro ao resetar tentativas de login:', err);
@@ -78,7 +79,7 @@ app.post('/api/users/login', (req, res) => {
                    res.status(200).json({ message: 'Login bem-sucedido!', redirectUrl: '/projects' });
                 } else {
                     // Incrementar o contador de tentativas de login
-                    const incrementAttemptsQuery = 'UPDATE users SET loginAttempts = loginAttempts + 1 WHERE email = ?';
+                    const incrementAttemptsQuery = 'UPDATE users SET loginattempts = loginattempts + 1 WHERE email = $1';
                     db.query(incrementAttemptsQuery, [email], (err, results) => {
                         if (err) {
                             console.error('Erro ao incrementar tentativas de login:', err);

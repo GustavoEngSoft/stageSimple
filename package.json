@@ -1,0 +1,26 @@
+{
+  "name": "stagesimple",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix front-end\" \"npm run dev --prefix backend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GustavoEngSoft/stageSimple.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GustavoEngSoft/stageSimple/issues"
+  },
+  "homepage": "https://github.com/GustavoEngSoft/stageSimple#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "stagesimple": "file:"
+  }
+}
