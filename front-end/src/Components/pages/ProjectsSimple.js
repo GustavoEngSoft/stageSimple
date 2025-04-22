@@ -44,6 +44,7 @@ const ProjectsSimple = () => {
   }, []);
 
   const handleAddProject = () => {
+    console.log("Add Project button clicked");
     if (user?.role !== "Product Manager") {
       alert("Only Product Managers can create projects.");
       return;
@@ -52,13 +53,15 @@ const ProjectsSimple = () => {
   };
 
   const handleModalClose = () => {
+    console.log("Modal closed");
     setIsModalOpen(false);
   };
 
   const handleSaveProject = () => {
+    console.log("Saving project:", newProject);
     if (newProject.name && newProject.startDate) {
       const newProjectObj = { ...newProject, userEmail: user.email };
-      console.log("Saving project:", newProjectObj);
+      console.log("Saving project object:", newProjectObj);
       axios.post('http://localhost:5000/api/projects', newProjectObj, {withCredentials: true})
         .then(response => {
           console.log("Project saved successfully:", response.data);
@@ -69,22 +72,28 @@ const ProjectsSimple = () => {
           }
           setIsModalOpen(false);
           setNewProject({ name: "", startDate: "" });
-          console.log("Projects:", projects);
+          console.log("Updated Projects list:", projects);
         })
         .catch(error => console.error('Error saving project:', error));
+    } else {
+      console.log("Missing project details. Name or Start Date is empty.");
     }
   };
 
   const handleDeleteProject = (id) => {
+    console.log("Deleting project with id:", id);
     axios.delete(`http://localhost:5000/api/projects/${id}`, {withCredentials: true})
       .then(() => {
+        console.log("Project deleted:", id);
         setProjects(projects.filter((project) => project.id !== id));
       })
       .catch(error => console.error('Error deleting project:', error));
   };
 
   const handleEditProject = (id) => {
+    console.log("Editing project with id:", id);
     const projectToEdit = projects.find((project) => project.id === id);
+    console.log("Project to edit:", projectToEdit);
     setNewProject({ name: projectToEdit.name, startDate: projectToEdit.startDate });
     setIsModalOpen(true);
     handleDeleteProject(id);
@@ -96,6 +105,7 @@ const ProjectsSimple = () => {
   };
 
   const handleStatusProject = (id) => {
+    console.log("Navigating to status of project:", id);
     navigate(`/projectStatus/${id}`);
   };
 
@@ -109,13 +119,13 @@ const ProjectsSimple = () => {
   );
 
   const handlePageChange = (pageNumber) => {
+    console.log("Page change requested. New page:", pageNumber);
     setCurrentPage(pageNumber);
   };
 
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
 
   const isProductManager = user?.role === "Product Manager";
-
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -153,14 +163,20 @@ const ProjectsSimple = () => {
                 type="text"
                 placeholder="Name of Project"
                 value={newProject.name}
-                onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                onChange={(e) => {
+                  console.log("Name input changed:", e.target.value);
+                  setNewProject({ ...newProject, name: e.target.value });
+                }}
               />
               <input
                 className="date_in"
                 type="date"
                 placeholder="Date of Start"
                 value={newProject.startDate}
-                onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
+                onChange={(e) => {
+                  console.log("Start date input changed:", e.target.value);
+                  setNewProject({ ...newProject, startDate: e.target.value });
+                }}
               />
               <button className='save_button' onClick={handleSaveProject}>Save</button>
               <button className='cancel_button' onClick={handleModalClose}>Cancel</button>

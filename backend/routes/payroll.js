@@ -10,20 +10,18 @@ router.get('/', authenticateUser, (req, res) => {
     if (err) {
       return res.status(500).json({ message: err.message });
     }
-    console.log("Dados retornados:", results); // Verifique se o campo paymentType está presente
-    res.json(results);
+    res.json(results.rows); // PostgreSQL retorna os dados em 'rows'
   });
 });
 
 // Adicionar um novo registro de folha de pagamento
 router.post('/', authenticateUser, isProductManager, (req, res) => {
   const { name, role, hoursWorked, hourlyRate, paymentType, salary } = req.body;
-  // Validação dos campos obrigatórios
+
   if (!name || !role || !paymentType) {
     return res.status(400).json({ message: "Campos obrigatórios estão faltando." });
   }
 
-  // Validação adicional para tipos de pagamento
   if (paymentType === "hourly" && (!hoursWorked || !hourlyRate)) {
     return res.status(400).json({ message: "Horas trabalhadas e taxa horária são obrigatórias para pagamento por hora." });
   }
@@ -32,12 +30,18 @@ router.post('/', authenticateUser, isProductManager, (req, res) => {
     return res.status(400).json({ message: "Salário é obrigatório para pagamento semanal ou mensal." });
   }
 
-  const query = 'INSERT INTO payroll (name, role, hoursWorked, hourlyRate, paymentType, salary ) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(query, [name, role, hoursWorked, hourlyRate, paymentType, salary], (err, results) => {
+  const query = `
+    INSERT INTO payroll (name, role, hoursWorked, hourlyRate, paymentType, salary)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id
+  `;
+  const values = [name, role, hoursWorked || null, hourlyRate || null, paymentType, salary || null];
+
+  db.query(query, values, (err, result) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
-    res.status(201).json({ id: results.insertId, name, role, hoursWorked, hourlyRate, paymentType, salary });
+    res.status(201).json({ id: result.rows[0].id, name, role, hoursWorked, hourlyRate, paymentType, salary });
   });
 });
 
@@ -46,12 +50,10 @@ router.put('/:id', authenticateUser, isProductManager, (req, res) => {
   const { id } = req.params;
   const { name, role, hoursWorked, hourlyRate, paymentType, salary } = req.body;
 
-  // Validação dos campos obrigatórios
   if (!name || !role || !paymentType) {
     return res.status(400).json({ message: "Campos obrigatórios estão faltando." });
   }
 
-  // Validação adicional para tipos de pagamento
   if (paymentType === "hourly" && (!hoursWorked || !hourlyRate)) {
     return res.status(400).json({ message: "Horas trabalhadas e taxa horária são obrigatórias para pagamento por hora." });
   }
@@ -60,8 +62,14 @@ router.put('/:id', authenticateUser, isProductManager, (req, res) => {
     return res.status(400).json({ message: "Salário é obrigatório para pagamento semanal ou mensal." });
   }
 
-  const query = 'UPDATE payroll SET name = ?, role = ?, hoursWorked = ?, hourlyRate = ?, paymentType = ?, salary = ? WHERE id = ?';
-  db.query(query, [name, role, hoursWorked || null, hourlyRate || null, paymentType, salary || null, id], (err, results) => {
+  const query = `
+    UPDATE payroll
+    SET name = $1, role = $2, hoursWorked = $3, hourlyRate = $4, paymentType = $5, salary = $6
+    WHERE id = $7
+  `;
+  const values = [name, role, hoursWorked || null, hourlyRate || null, paymentType, salary || null, id];
+
+  db.query(query, values, (err, result) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }
@@ -72,8 +80,8 @@ router.put('/:id', authenticateUser, isProductManager, (req, res) => {
 // Deletar um registro de folha de pagamento
 router.delete('/:id', authenticateUser, isProductManager, (req, res) => {
   const { id } = req.params;
-  const query = 'DELETE FROM payroll WHERE id = ?';
-  db.query(query, [id], (err, results) => {
+  const query = 'DELETE FROM payroll WHERE id = $1';
+  db.query(query, [id], (err, result) => {
     if (err) {
       return res.status(500).json({ message: err.message });
     }

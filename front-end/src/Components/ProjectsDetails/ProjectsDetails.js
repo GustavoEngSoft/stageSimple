@@ -109,7 +109,9 @@ const ProjectDetails = () => {
 
     axios.get('http://localhost:5000/api/users', { withCredentials: true })
       .then(response => {
-        setAllUsers(response.data);
+        console.log("All users response:", response.data); // <- adicione isto
+
+        setAllUsers(response.data.rows); // ✅ Agora `allUsers.map` vai funcionar
       })
       .catch(error => {
         console.error('Error fetching users:', error);

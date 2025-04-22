@@ -29,7 +29,7 @@ const NewUser = () => {
       try {
         const response = await axios.get('http://localhost:5000/api/users');
         console.log("Fetched users:",response.data);
-        setUsers(response.data);
+        setUsers(response.data.rows);
       } catch (err) {
         console.error("Erro ao buscar usuários:", err);
       }

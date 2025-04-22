@@ -5,21 +5,23 @@ const authenticateUser = (req, res, next) => {
     console.log('Sessão não autenticada');
     return res.sendStatus(401);
   }
-  // Definir req.user com base no userId da sessão
+
   const query = 'SELECT * FROM users WHERE id = $1';
   db.query(query, [req.session.userId], (err, results) => {
     if (err) {
       console.error('Erro no servidor:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
     }
-    if (results.length > 0) {
-      req.user = results[0];
+
+    if (results.rows.length > 0) {
+      req.user = results.rows[0];
       next();
     } else {
       res.status(404).json({ error: 'Usuário não encontrado' });
     }
   });
 };
+
 
 const isProductManager = (req, res, next) => {
   if (!req.user || !req.user.email) {

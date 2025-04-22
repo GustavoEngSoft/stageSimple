@@ -10,113 +10,90 @@ const upload = multer({ storage: storage });
 // Obter arquivos por ID do projeto
 router.get('/folders/:projectId', (req, res) => {
   const { projectId } = req.params;
-  const query = 'SELECT * FROM folders WHERE projectId = ?';
+  const query = 'SELECT * FROM folders WHERE projectId = $1';
   db.query(query, [projectId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: err.message });
-    }
-    res.json(results);
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(results.rows);
   });
 });
 
 // Adicionar uma nova pasta ao projeto
 router.post('/folders/:projectId', upload.single('file'), (req, res) => {
   const { projectId } = req.params;
-  const {name} = req.body;
-  const query = 'INSERT INTO folders (projectId, name) VALUES (?, ?)';
+  const { name } = req.body;
+  const query = 'INSERT INTO folders (projectId, name) VALUES ($1, $2) RETURNING id';
   db.query(query, [projectId, name], (err, results) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
-    res.status(201).json({ id: results.insertId, projectId, name });
+    if (err) return res.status(400).json({ message: err.message });
+    res.status(201).json({ id: results.rows[0].id, projectId, name });
   });
 });
 
 // Obter arquivos por ID do projeto e pasta
 router.get('/:projectId/:folderId', (req, res) => {
   const { projectId, folderId } = req.params;
-  const query = 'SELECT * FROM projectfiles WHERE projectId = ? AND folderId = ?';
+  const query = 'SELECT * FROM projectfiles WHERE projectId = $1 AND folderId = $2';
   db.query(query, [projectId, folderId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: err.message });
-    }
-    res.json(results);
+    if (err) return res.status(500).json({ message: err.message });
+    res.json(results.rows);
   });
 });
 
 // Adicionar um novo arquivo ao projeto e pasta
 router.post('/:projectId/:folderId', upload.single('file'), (req, res) => {
   const { projectId, folderId } = req.params;
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
-  }
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
   const { originalname, buffer, mimetype } = req.file;
-  console.log('Buffer:', buffer.length);
-  const query = 'INSERT INTO projectfiles (projectId, name, data, folderId, mimetype) VALUES (?, ?, ?, ?, ?)';
+  const query = `
+    INSERT INTO projectfiles (projectId, name, data, folderId, mimetype)
+    VALUES ($1, $2, $3, $4, $5) RETURNING id
+  `;
   db.query(query, [projectId, originalname, buffer, folderId, mimetype], (err, results) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
-    res.status(201).json({ id: results.insertId, projectId, folderId, name: originalname });
+    if (err) return res.status(400).json({ message: err.message });
+    res.status(201).json({ id: results.rows[0].id, projectId, folderId, name: originalname });
   });
 });
 
-// Endpoint para download do arquivo
+// Download de arquivo
 router.get('/download/:fileId', (req, res) => {
   const { fileId } = req.params;
-  const query = 'SELECT * FROM projectfiles WHERE id = ?';
+  const query = 'SELECT * FROM projectfiles WHERE id = $1';
   db.query(query, [fileId], (err, results) => {
-    if (err) {
-      console.error('Error querying database:', err);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'File not found' });
-    }
-    const file = results[0];
+    if (err) return res.status(500).json({ message: 'Internal server error' });
+    if (results.rows.length === 0) return res.status(404).json({ message: 'File not found' });
+    const file = results.rows[0];
     res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
     res.setHeader('Content-Type', file.mimetype);
     res.send(file.data);
   });
 });
 
-// Deletar um arquivo do projeto e pasta
-router.delete('/:projectId/:folderId/:fileId', (req, res) => {
-  const { projectId, folderId, fileId } = req.params;
-  const query = 'DELETE FROM projectfiles WHERE projectId = ? AND folderId = ? AND id = ?';
-  db.query(query, [projectId, folderId, fileId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: err.message });
-    }
-    res.json({ message: 'Arquivo deletado com sucesso' });
-  });
-});
-
-// Deletar uma pasta do projeto
+// Deletar arquivo
+// Deletar uma pasta e os arquivos associados
 router.delete('/folders/:projectId/:folderId', (req, res) => {
   const { projectId, folderId } = req.params;
-  console.log(`Deleting folder ${folderId} from project ${projectId}`);
-  // Primeiro, deletar todos os arquivos dentro da pasta
-  const deleteFilesQuery = 'DELETE FROM projectfiles WHERE projectId = ? AND folderId = ?';
-  db.query(deleteFilesQuery, [projectId, folderId], (err, results) => {
+
+  // Deletar os arquivos associados à pasta
+  const deleteFilesQuery = 'DELETE FROM projectfiles WHERE projectId = $1 AND folderId = $2';
+  db.query(deleteFilesQuery, [projectId, folderId], (err) => {
     if (err) {
-      console.error('Error deleting files:', err);
-      return res.status(500).json({ message: err.message });
+      console.error("Erro ao deletar arquivos:", err.message); // Logar o erro
+      return res.status(500).json({ message: "Erro ao deletar arquivos" });
     }
 
-    // Depois, deletar a pasta
-    const deleteFolderQuery = 'DELETE FROM folders WHERE id = ?';
+    // Deletar a pasta
+    const deleteFolderQuery = 'DELETE FROM folders WHERE id = $1 AND projectId = $2';
     db.query(deleteFolderQuery, [folderId, projectId], (err, results) => {
       if (err) {
-        console.error('Error deleting folder:', err);
-        return res.status(500).json({ message: err.message });
+        console.error("Erro ao deletar pasta:", err.message); // Logar o erro
+        return res.status(500).json({ message: "Erro ao deletar pasta" });
       }
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: 'Folder not found' });
+      if (results.rowCount === 0) {
+        return res.status(404).json({ message: 'Pasta não encontrada' });
       }
-      res.json({ message: 'Pasta deletada com sucesso' });
+      res.json({ message: 'Pasta e arquivos deletados com sucesso' });
     });
   });
 });
+
 
 module.exports = router;
